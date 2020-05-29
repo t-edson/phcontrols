@@ -131,3 +131,24 @@ Hello World page can be created in a file index.php with the following code:
 The output would be:
 
 ![sample page](https://github.com/t-edson/phcontrols/blob/master/sample1.png?raw=true)
+
+A simple database connnection to show a table list is:
+
+```
+<head>
+	<link rel="stylesheet" href="phcontrols.css">
+</head>
+<body>
+	<?php
+	DB_set_mysql('localhost', 'user', 'pass', 'myDB');
+	DB_open();
+	$fsql = "SELECT idUsuario, nombres, idPErfil, horarios FROM usuarios";
+	table_list($fsql, 0, []);
+	DB_close();
+	?>	
+</body>
+```
+
+The output would be:
+
+![sample page](https://github.com/t-edson/phcontrols/blob/master/sample2.png?raw=true)
