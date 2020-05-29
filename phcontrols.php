@@ -360,33 +360,6 @@ function block_separatorh() {
 	echo '<div class="block_seph"></div>';
 }
 ///////////////// Rutinas front-end /////////////////
-function form_login($institucion, $url_ini_ses, $msg_inf, $hvalidar) {
-	/* Genera Html para crear un formulario de Inicio de sesión.
-	   Parámetros:
-		 $institucion -> Institución para el cual se debe validar al usuario. Para
-		 				 el usuario "super" debe ser "inst_super".
-		 $url_ini_ses -> Es la URL destino a donde se regresará después de realizar la validación.
-		 $msg_inf     -> Mensaje adicional a mostrar como información adicional.
-		 $hvalidar    -> URL para la validación de  la sesión.
-	*/
-	//$url_ini_ses = HWEB."index.php";
-	$res = '<form class="form_log1" action="'.$hvalidar.'" method="post">';
-	$res.= '<h3>Inicio de sesión</h3>';
-	$res.= '<div class="form-group">';
-    //$res.= '	<label> Usuario: </label> ';
-	$res.= '	<input type="text" class="form-control" placeholder="&#128102; Usuario" name="usuario">';
-	$res.= '</div>';
-	echo $res;
-	echo '<div class="form-group">';
-	echo '	<input type="password" class="form-control" placeholder="&#128274; Clave" name="clave">';
-	if ($msg_inf!='') alert_danger_small($msg_inf);
-	//Campos ocultos
-	echo '	<input type="hidden" name="destino" value="'.$url_ini_ses.'"/>';
-	echo '	<input type="hidden" name="instit" value="'.$institucion.'"/>';
-	echo '</div>';
-	echo '<input type="submit" class="btn btn-primary" value="Ingresar">';
-	echo '</form>';
-}
 function _item_bloque($name, $img, $id, $hsel, $draggable=true) {
 	/* Genera HTML para un ítem a dibujarse en forma de bloque 
 	  cuadrado. 
