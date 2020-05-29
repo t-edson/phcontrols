@@ -57,8 +57,7 @@ The library doesn't force to use a special architecture for the application.
   * block_separatorh()
 
 * Routines for front-end
-  * FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar)
-  * block_table_icons($titulo, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
+  * block_table_icons($title, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
   * table_list($fsql, $hidecols, $buttons)
   * form_insert($table, $fields, $hins, $msj_agre)
   * form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
@@ -91,7 +90,7 @@ No special installation is required. The code of the library just includes:
 
 SASS is used to create the Style sheet, but a common CSS file is included too.
 
-To use the PHP library, it's needed to include the code in a PHP file:
+To use the PHP library, just copy the files in an accesible path and includes the following code in a PHP file:
 
 ```
 <?php
