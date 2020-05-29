@@ -8,12 +8,6 @@ Phcontrols is a light PHP library aimed to ease the construction of HTML forms i
 
 The library is just a set of considerably independent (but related) functions. No OOP paradigm is used.
 
-The code of the library just includes:
-- A PHP file: phcontrols.php
-- A SCSS file: phcontrols.scss
-
-SASS is used to create the Style sheet, but a common CSS file is included too.
- 
 The front-end is created using some functions of the library. There are just a few visual elements:
 
 - Blocks.- A rectangle and rounded frame.
@@ -27,19 +21,46 @@ It's not needed to work with a database to generate front-end, but some function
 
 The library doesn't force to use a special architecture for the application.
 
+# Installation
+
+No special installation is required. The code of the library just includes:
+
+- A PHP file: phcontrols.php
+- A SCSS file: phcontrols.scss
+
+SASS is used to create the Style sheet, but a common CSS file is included too.
+
+To use the PHP library, it's needed to include the code in a PHP file:
+
+```
+<?php
+include 'phcontrols.php';
+...
+
+?>
+```
+
+To use the style sheet, it can be included in the header of the PHP or HTML file:
+
+```
+...
+<link rel="stylesheet" href="'.HWEB.'/phcontrols.css">
+...
+```
+
 ## Routines
 
 * Routines to include Javascript code:
-JSaddCode($code)
-JSaddFunction($name, $code)
-JSincludeScript()
+-JSaddCode($code)
+-JSaddFunction($name, $code)
+-JSincludeScript()
 
 * Routines to access MySQL database:
 DB_set_mysql()
-InicConexBD()
+DB_open()
 EjBD($sql)
 EjecBD($sql)
-CerrarBD()
+DB_close()
 
 * Routines to create Messages:
 alert_warning($msg)
@@ -79,7 +100,7 @@ read_col_POST($col_name)
 
 Only MySQL databases are supported. 
 
-The database can be relational or not. The uses of NULL or NOT NULL columns is important when editing tables with the library,
+The database can be relational or not. 
 
 Databases must be created according to the following rules:
 
@@ -87,4 +108,8 @@ Databases must be created according to the following rules:
  - Boolean columns must be represented as Tinyint type, because functions, that edits tables, work in that way.
  - Boolean columns must have a default value of FALSE to avoid generates NULL values.
  - Password columns must be defined as CHAR data types in order to be shown correctly.
+
+## Hello World page
+
+Create a file index.php with the following code:
 
