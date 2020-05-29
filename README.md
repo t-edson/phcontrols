@@ -24,16 +24,16 @@ The library doesn't force to use a special architecture for the application.
 ## Routines
 
 * Routines to include Javascript code:
- *  JSaddCode($code)
- *  JSaddFunction($name, $code)
- *  JSincludeScript()
+  * JSaddCode($code)
+  * JSaddFunction($name, $code)
+  * JSincludeScript()
 
 * Routines to access MySQL database:
-  *  DB_set_mysql()
-  *  DB_open()
-  *  EjBD($sql)
-  *  EjecBD($sql)
-  *  DB_close()
+  * DB_set_mysql()
+  * DB_open()
+  * EjBD($sql)
+  * EjecBD($sql)
+  * DB_close()
 
 * Routines to create Messages:
   * alert_warning($msg)
@@ -42,32 +42,32 @@ The library doesn't force to use a special architecture for the application.
   * jumbotron($msg, $pagRetorno, $txtBoton)
 
 * Routines to create Controls
-*  control_edit($caption, $field_name, $default, $class='')
-*  control_password($caption, $field_name, $default, $class='')
-*  control_number($caption, $field_name, $default, $step, $class='')
-*  control_switch($caption, $field_name, $default, $class='')
-*  control_listbox($caption, $field_name, $items, $default, $class='')
-*  button_add($caption, $action)
-*  button_grab($caption, $action)
-*  button_submit($caption)
+  * control_edit($caption, $field_name, $default, $class='')
+  * control_password($caption, $field_name, $default, $class='')
+  * control_number($caption, $field_name, $default, $step, $class='')
+  * control_switch($caption, $field_name, $default, $class='')
+  * control_listbox($caption, $field_name, $items, $default, $class='')
+  * button_add($caption, $action)
+  * button_grab($caption, $action)
+  * button_submit($caption)
 
 * Routines to create Frames
-*  startBlock($title, $title_buttons=[])
-*  endBlock()
-*  block_separatorh()
+  * startBlock($title, $title_buttons=[])
+  * endBlock()
+  * block_separatorh()
 
 * Routines for front-end
-*  FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar)
-*  block_table_icons($titulo, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
-*  table_list($fsql, $hidecols, $buttons)
-*  form_insert($table, $fields, $hins, $msj_agre)
-*  form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
+  * FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar)
+  * block_table_icons($titulo, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
+  * table_list($fsql, $hidecols, $buttons)
+  * form_insert($table, $fields, $hins, $msj_agre)
+  * form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
 
 * Routines for back-end
-*  redirect($modo, $url_destino, $error='')
-*  get_SQL_insert($table)
-*  get_SQL_update($table, $cond_reg)
-*  read_col_POST($col_name)
+  * redirect($modo, $url_destino, $error='')
+  * get_SQL_insert($table)
+  * get_SQL_update($table, $cond_reg)
+  * read_col_POST($col_name)
 
 ## Database connection
 
