@@ -51,9 +51,9 @@ To use the style sheet, it can be included in the header of the PHP or HTML file
 ## Routines
 
 * Routines to include Javascript code:
--JSaddCode($code)
--JSaddFunction($name, $code)
--JSincludeScript()
+** JSaddCode($code)
+** JSaddFunction($name, $code)
+** JSincludeScript()
 
 * Routines to access MySQL database:
 DB_set_mysql()
