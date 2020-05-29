@@ -21,6 +21,67 @@ It's not needed to work with a database to generate front-end, but some function
 
 The library doesn't force to use a special architecture for the application.
 
+## Routines
+
+* Routines to include Javascript code:
+*  JSaddCode($code)
+*  JSaddFunction($name, $code)
+*  JSincludeScript()
+
+* Routines to access MySQL database:
+*  DB_set_mysql()
+*  DB_open()
+*  EjBD($sql)
+*  EjecBD($sql)
+*  DB_close()
+
+* Routines to create Messages:
+*  alert_warning($msg)
+*  alert_danger($msg)
+*  alert_danger_small($msg)
+*  jumbotron($msg, $pagRetorno, $txtBoton)
+
+* Routines to create Controls
+*  control_edit($caption, $field_name, $default, $class='')
+*  control_password($caption, $field_name, $default, $class='')
+*  control_number($caption, $field_name, $default, $step, $class='')
+*  control_switch($caption, $field_name, $default, $class='')
+*  control_listbox($caption, $field_name, $items, $default, $class='')
+*  button_add($caption, $action)
+*  button_grab($caption, $action)
+*  button_submit($caption)
+
+* Routines to create Frames
+*  startBlock($title, $title_buttons=[])
+*  endBlock()
+*  block_separatorh()
+
+* Routines for front-end
+*  FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar)
+*  block_table_icons($titulo, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
+*  table_list($fsql, $hidecols, $buttons)
+*  form_insert($table, $fields, $hins, $msj_agre)
+*  form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
+
+* Routines for back-end
+*  redirect($modo, $url_destino, $error='')
+*  get_SQL_insert($table)
+*  get_SQL_update($table, $cond_reg)
+*  read_col_POST($col_name)
+
+## Database connection
+
+Only MySQL databases are supported. 
+
+The database can be relational or not. 
+
+Databases must be created according to the following rules:
+
+ - Tables must have a primary key, if the table is going to be edited by the functions of the library.
+ - Boolean columns must be represented as Tinyint type, because functions, that edits tables, work in that way.
+ - Boolean columns must have a default value of FALSE to avoid generates NULL values.
+ - Password columns must be defined as CHAR data types in order to be shown correctly.
+
 # Installation
 
 No special installation is required. The code of the library just includes:
@@ -48,68 +109,25 @@ To use the style sheet, it can be included in the header of the PHP or HTML file
 ...
 ```
 
-## Routines
 
-* Routines to include Javascript code:
-> JSaddCode($code)
-> JSaddFunction($name, $code)
-> JSincludeScript()
+## Sample Code
 
-* Routines to access MySQL database:
-DB_set_mysql()
-DB_open()
-EjBD($sql)
-EjecBD($sql)
-DB_close()
+Hello World page can be created in a file index.php with the following code:
 
-* Routines to create Messages:
-alert_warning($msg)
-alert_danger($msg)
-alert_danger_small($msg)
-jumbotron($msg, $pagRetorno, $txtBoton)
+```
+<head>
+	<link rel="stylesheet" href="phcontrols.css">
+</head>
+<body>
+	<?php
+	include 'phcontrols.php';
+	startBlock('My Block');
+	echo 'Hello world';
+	endBlock();
+	?>	
+</body>
+```
 
-* Routines to create Controls
-control_edit($caption, $field_name, $default, $class='')
-control_password($caption, $field_name, $default, $class='')
-control_number($caption, $field_name, $default, $step, $class='')
-control_switch($caption, $field_name, $default, $class='')
-control_listbox($caption, $field_name, $items, $default, $class='')
-button_add($caption, $action)
-button_grab($caption, $action)
-button_submit($caption)
+The output would be:
 
-* Routines to create Frames
-startBlock($title, $title_buttons=[])
-endBlock()
-block_separatorh()
-
-* Routines for front-end
-FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar)
-block_table_icons($titulo, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
-table_list($fsql, $hidecols, $buttons)
-form_insert($table, $fields, $hins, $msj_agre)
-form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
-
-* Routines for back-end
-redirect($modo, $url_destino, $error='')
-get_SQL_insert($table)
-get_SQL_update($table, $cond_reg)
-read_col_POST($col_name)
-
-## Database connection
-
-Only MySQL databases are supported. 
-
-The database can be relational or not. 
-
-Databases must be created according to the following rules:
-
- - Tables must have a primary key, if the table is going to be edited by the functions of the library.
- - Boolean columns must be represented as Tinyint type, because functions, that edits tables, work in that way.
- - Boolean columns must have a default value of FALSE to avoid generates NULL values.
- - Password columns must be defined as CHAR data types in order to be shown correctly.
-
-## Hello World page
-
-Create a file index.php with the following code:
-
+![sample page](https://github.com/t-edson/phcontrols/blob/master/sample1.png?raw=true)
