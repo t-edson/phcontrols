@@ -48,7 +48,7 @@ The library doesn't force to use a special architecture for the application.
   * control_switch($caption, $field_name, $default, $class='')
   * control_listbox($caption, $field_name, $items, $default, $class='')
   * button_add($caption, $action)
-  * button_grab($caption, $action)
+  * button_save($caption, $action)
   * button_submit($caption)
 
 * Routines to create Frames
@@ -105,7 +105,7 @@ To use the style sheet, it can be included in the header of the PHP or HTML file
 
 ```
 ...
-<link rel="stylesheet" href="'.HWEB.'/phcontrols.css">
+<link rel="stylesheet" href="phcontrols.css">
 ...
 ```
 
