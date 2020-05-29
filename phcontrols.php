@@ -88,7 +88,7 @@ function DB_set_mysql($host, $user, $pass, $name) {
     $DB_PASS = $pass;
     $DB_NAME = $name;
 }
-function InicConexBD() {
+function DB_open() {
 	/*Inicia la conexión a la base de datos. Actualiza la variable global $dbConex.*/
     global $DB_HOST, $DB_USER, $DB_PASS, $DB_NAME;
     global $dbConex;
@@ -138,7 +138,7 @@ function EjecBD($sql) {
 	if (!$result) jumbotron('Lo siento :( Tenemos problemas: '.$dbError, 'index.php');
 	return $result;
 }
-function CerrarBD() {
+function DB_close() {
 	/* Cierra la conexión a la base de datos y libera el objeto $dbResult, si es que se 
 	hubiera usado */
 	global $dbConex;
@@ -150,7 +150,7 @@ function CerrarBD() {
 function alert_warning($msg) {
 	/* Genera HTML para un mensaje de advertencia. */
 	echo '<br>';	
-	echo '<div class="alert-warning">';
+	echo '<div class="alert alert-warning">';
 	echo '  <p>'.$msg.'</p>';
 	echo '</div>';
 }
@@ -308,16 +308,16 @@ function control_listbox($caption, $field_name, $items, $default, $class='') {
 }
 function button_add($caption, $action) {
 	/* Genera código HTML para un botón.
-	Un ejemplo de llamada, sería: button_grab('Grabar',"alert('aaa')"); */
+	Un ejemplo de llamada, sería: button_add('Grabar',"alert('aaa')"); */
 	echo '<div class="btn btn-primary" 
 			onclick="'.$action.'"
 		>';
 	echo '✚&nbsp;&nbsp;'.'<span>'.$caption.'</span>';
 	echo '</div>';
 }
-function button_grab($caption, $action) {
+function button_save($caption, $action) {
 	/* Genera código HTML para un botón.
-	Un ejemplo de llamada, sería: button_grab('Grabar',"alert('aaa')"); */
+	Un ejemplo de llamada, sería: button_save('Grabar',"alert('aaa')"); */
 	echo '<div class="btn btn-primary" 
 			onclick="'.$action.'"
 		>';
@@ -360,7 +360,7 @@ function block_separatorh() {
 	echo '<div class="block_seph"></div>';
 }
 ///////////////// Rutinas front-end /////////////////
-function FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar) {
+function form_login($institucion, $url_ini_ses, $msg_inf, $hvalidar) {
 	/* Genera Html para crear un formulario de Inicio de sesión.
 	   Parámetros:
 		 $institucion -> Institución para el cual se debe validar al usuario. Para
@@ -376,24 +376,18 @@ function FormInicioSesion($institucion, $url_ini_ses, $msg_inf, $hvalidar) {
     //$res.= '	<label> Usuario: </label> ';
 	$res.= '	<input type="text" class="form-control" placeholder="&#128102; Usuario" name="usuario">';
 	$res.= '</div>';
-	$res.= '<div class="form-group">';
-	//$res.= '	<label> Clave: </label> ';
-	$res.= '	<input type="password" class="form-control" placeholder="&#128274; Clave" name="clave">';
-	if ($msg_inf!='') {
-	$res.= '	<div class="alert alert-danger small">';
-	$res.= 	      $msg_inf;
-	$res.= '	</div>'; 
-	}
-	//Campos ocultos
-	$res.= '	<input type="hidden" name="destino" value="'.$url_ini_ses.'"/>';
-	$res.= '	<input type="hidden" name="instit" value="'.$institucion.'"/>';
-	//	
-	$res.= '</div>';
-	$res.= '<input type="submit" class="btn btn-primary" value="Ingresar">';
-	$res.= '</form>';
 	echo $res;
+	echo '<div class="form-group">';
+	echo '	<input type="password" class="form-control" placeholder="&#128274; Clave" name="clave">';
+	if ($msg_inf!='') alert_danger_small($msg_inf);
+	//Campos ocultos
+	echo '	<input type="hidden" name="destino" value="'.$url_ini_ses.'"/>';
+	echo '	<input type="hidden" name="instit" value="'.$institucion.'"/>';
+	echo '</div>';
+	echo '<input type="submit" class="btn btn-primary" value="Ingresar">';
+	echo '</form>';
 }
-function _item_bloque($nombre, $img, $id, $hsel, $draggable=true) {
+function _item_bloque($name, $img, $id, $hsel, $draggable=true) {
 	/* Genera HTML para un ítem a dibujarse en forma de bloque 
 	  cuadrado. 
 	  Parámetros:
@@ -424,16 +418,16 @@ function _item_bloque($nombre, $img, $id, $hsel, $draggable=true) {
 	echo '  <span>';
 	//Desactiva "draggable" del <img> (activo por defecto) para que no interfiera.
 	echo '    <img draggable="false" src="'.HWEB.$img.'" />';
-	echo      $nombre;
+	echo      $name;
 	echo '  </span>';
 	echo '  </div>';
 	echo '</button>';
 }
-function block_table_icons($titulo, $icon, $tabla, 
+function block_table_icons($title, $icon, $tabla, 
 			$col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel) {
 	/* Genera el HTML de una lista de bloques, a partir de registros
 	  de una tabla de la base de datos. Se debe haber llamado primero 
-	  a InicConexBD(). 
+	  a DB_open(). 
 	  Parámetros:
 	    $tabla -> Nombre de la tabla de la base de datos.
 	    $col_id -> Columna de la tabla que se usará como clave primaria.
@@ -454,7 +448,7 @@ function block_table_icons($titulo, $icon, $tabla,
 	  $ICO_TRASH);
 	//Genera encabezado
 	$buttons = array($ico_drop => '#');
-	startBlock($titulo, $buttons);
+	startBlock($title, $buttons);
 	if ($dbRowNum==0) {
       //echo '<div> Usted no tiene instituciones aún :( </div>';
       //echo '<p></p>';
@@ -493,7 +487,7 @@ function block_table_icons($titulo, $icon, $tabla,
 function table_list($fsql, $hidecols, $buttons) {
 	/* Genera el HTML de una tabla HTML que representa los registros
 	 de una tabla de la base de datos. Se debe haber llamado primero 
-	 a InicConexBD(). 
+	 a DB_open(). 
 	 Parámetros:
 		$fsql    -> Consulta a la base de datos para extraer las filas a 
 					mostrar. 
@@ -918,14 +912,14 @@ function form_update($table, $fields, $hupd, $msj_agre, $cond_reg){
 	');
 }
 ///////////////// Rutinas back-end ///////////////
-function redirect($modo, $url_destino, $error='') {
+function redirect($mode, $url_target, $error='') {
 	/* Genera código de salida del script PHP, con los parámetros
 	indicados. */
-	$_SESSION['mode'] = $modo;
+	$_SESSION['mode'] = $mode;
 	if ($error=='') {
-		header("location:".$url_destino);
+		header("location:".$url_target);
 	} else {
-		header("location:".$url_destino."?e=".$error);
+		header("location:".$url_target."?e=".$error);
 	}
 	return 0;   //Por si se necesita usarlo como función.
 }

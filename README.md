@@ -63,7 +63,7 @@ The library doesn't force to use a special architecture for the application.
   * form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
 
 * Routines for back-end
-  * redirect($modo, $url_destino, $error='')
+  * redirect($mode, $url_target, $error='')
   * get_SQL_insert($table)
   * get_SQL_update($table, $cond_reg)
   * read_col_POST($col_name)
