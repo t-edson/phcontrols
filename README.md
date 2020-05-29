@@ -24,22 +24,22 @@ The library doesn't force to use a special architecture for the application.
 ## Routines
 
 * Routines to include Javascript code:
-*  JSaddCode($code)
-*  JSaddFunction($name, $code)
-*  JSincludeScript()
+ *  JSaddCode($code)
+ *  JSaddFunction($name, $code)
+ *  JSincludeScript()
 
 * Routines to access MySQL database:
-*  DB_set_mysql()
-*  DB_open()
-*  EjBD($sql)
-*  EjecBD($sql)
-*  DB_close()
+  *  DB_set_mysql()
+  *  DB_open()
+  *  EjBD($sql)
+  *  EjecBD($sql)
+  *  DB_close()
 
 * Routines to create Messages:
-*  alert_warning($msg)
-*  alert_danger($msg)
-*  alert_danger_small($msg)
-*  jumbotron($msg, $pagRetorno, $txtBoton)
+  * alert_warning($msg)
+  * alert_danger($msg)
+  * alert_danger_small($msg)
+  * jumbotron($msg, $pagRetorno, $txtBoton)
 
 * Routines to create Controls
 *  control_edit($caption, $field_name, $default, $class='')
