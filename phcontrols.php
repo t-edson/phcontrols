@@ -37,6 +37,11 @@ function removeQuotes(&$txt) {
 	if ($tmp=='') {$txt = $tmp; return;}
 	$txt = (substr($tmp, -1)=="'")? substr($tmp, 0, -1): $tmp; //Quita último caracter
 }
+function valid_identifier($identif) {
+	/*Valida que la cadena $identif, tenga caracteres válidos para un 
+	identificador. Si no cumple, devuelve FALSE.*/
+    return !preg_match('/[^A-Za-z0-9.$]/', $identif);
+}
 //////////////////// Javascript /////////////////////
 //Contenedores de rutinas Javascript.
 $JScode = array();  //Líneas de código Javascript
@@ -91,22 +96,20 @@ function DB_set_mysql($host, $user, $pass, $name) {
 function DB_open() {
 	/*Inicia la conexión a la base de datos. Actualiza la variable global $dbConex.*/
     global $DB_HOST, $DB_USER, $DB_PASS, $DB_NAME;
-    global $dbConex;
+	global $dbConex;
 	$dbConex=mysqli_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
 	mysqli_set_charset($dbConex, "UTF8");
 };
-function EjBD($sql) {
+function DB_exec($sql) {
 	/*Ejecuta una consulta. Actualiza las variables globales $dbResult, $dbRowNum y $dbError.
-	Si la consulta se ejecuta exitosamente:
-	- Devuelve el resultado en: $dbResult. 
-	- Devuelve el número de filas en $dbRowNum.
-	- Devuelve TRUE.
-	Si la consulta se ejecuta con error:
-	- Devuelve mensaje de error en $dbError.
-	- Devuelve FALSE.
-	- Libera el objeto $dbConex.
-	La forma usual de uso es:
-	if (!EjecBD('...')) exit;   //sale generando error, si se produce.
+	 Si la consulta se ejecuta exitosamente:
+	 - Devuelve el resultado en: $dbResult. 
+	 - Devuelve el número de filas en $dbRowNum.
+	 - Devuelve TRUE.
+	 Si la consulta se ejecuta con error:
+	 - Devuelve mensaje de error en $dbError.
+	 - Devuelve FALSE.
+	 - Libera el objeto $dbConex.
 	*/
 	global $dbConex;
 	global $dbResult;
@@ -115,7 +118,6 @@ function EjBD($sql) {
 	$dbResult=mysqli_query($dbConex, $sql);
 	if($dbResult === FALSE) {
 		$dbError = mysqli_error($dbConex);
-		//jumbotron('Lo siento :( Tenemos problemas: '.$dbError, 'index.php');
 		mysqli_close($dbConex);
 		return false;
 	} else {
@@ -127,15 +129,15 @@ function EjBD($sql) {
 		return true;
 	}
 }
-function EjecBD($sql) {
-	/*Similar a EjBD(), pero cuando hay error Genera código Bootstrap con mensaje de error.
+function DB_exee($sql) {
+	/*Similar a DB_exec(), pero cuando hay error Genera mensaje de error.
 
 	La forma usual de uso es:
-	if (!EjecBD('...')) exit;   //sale generando error, si se produce.
+	if (!DB_exee('...')) exit;   //sale generando error, si se produce.
 	*/
 	global $dbError;
-	$result = EjBD($sql);
-	if (!$result) jumbotron('Lo siento :( Tenemos problemas: '.$dbError, 'index.php');
+	$result = DB_exec($sql);
+	if (!$result) jumbotron('Error!!!', 'We have problems: '.$dbError);
 	return $result;
 }
 function DB_close() {
@@ -143,7 +145,7 @@ function DB_close() {
 	hubiera usado */
 	global $dbConex;
 	global $dbResult;
-    if ($dbResult!=NULL) mysqli_free_result($dbResult);
+    //if ($dbResult!=NULL) mysqli_free_result($dbResult);
 	if ($dbConex!=NULL) mysqli_close($dbConex);
 }
 //////////////// Mensajes ///////////////////////////////
@@ -166,19 +168,24 @@ function alert_danger_small($msg) {
 	echo $msg;
 	echo '</div>';
 }
-function jumbotron($msg, $pagRetorno, $txtBoton='Volver &raquo;') {
+function jumbotron($title, $txt, $butlink='', $buttxt='Go back &raquo;') {
 	/* Muestra un mensaje con letras grandes que llena toda el área disponible.
-	Se incluye también un botón par regresar a una página específica.
+	Se incluye también un botón para ir a una página específica.
+	Considerar que para que se muestre en el formato correcto, se debe haber cargado 
+	la hoja de estilos "phcontrols.css".
 	*/
 	echo '<br>';	
-	echo '<div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">';
 	echo '  <div class="jumbotron">';
-	echo '    <p>'.$msg.'</p>';
+	echo '    <h1>'.$title.'</h1>';
+	echo '    <p>'.$txt.'</p>';
 	echo '    <p> ';
-	echo '    <a class="btn btn-lg btn-primary" href="'.HWEB.'/'.$pagRetorno.'" role="button">'.$txtBoton.'</a>';
+	if ($butlink!='') {
+		echo '<a class="btn btn-lg btn-primary" href="'.HWEB.'/'.$butlink.'" role="button">';
+		echo   $buttxt;
+		echo '</a>';
+	}
 	echo '    </p>';
 	echo '  </div>';
-	echo '</div>';
 }
 //////////////// Controls //////////////////////////////
 function control_edit($caption, $field_name, $default, $class='') {
@@ -236,6 +243,46 @@ function control_number($caption, $field_name, $default, $step, $class='') {
 	echo '    name="'.$field_name.'" value="'.$default.'" ';
 	if ($class=='cnt-disabled')	echo ' disabled ';
 	echo '    id="'.$field_name.'">';
+	echo '  </div>';
+	//Campo para el mensaje de error
+	echo '  <div class="msg">';
+	echo '  </div>';
+	echo '</div>'."\n";
+}
+function control_date($caption, $field_name, $default, $class='') {
+	/* Inserta control de edición para campo de tipo fecha. El control tendrá la forma: 
+	 <caption> <control de edición> 
+	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
+	 control <input>. */
+	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	echo '<div class="control-field '.$class.'">';
+	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
+	// Control
+	echo '  <div class="control">';
+	echo '    <input type="date" class="form-control" ';
+	echo '    name="'.$field_name.'" value="'.$default.'" ';
+	if ($class=='cnt-disabled')	echo ' disabled ';
+	echo '    id="'.$field_name.'"  min="2019-01-01" max="2021-12-31">';
+	echo '  </div>';
+	//Campo para el mensaje de error
+	echo '  <div class="msg">';
+	echo '  </div>';
+	echo '</div>'."\n";
+}
+function control_time($caption, $field_name, $default, $class='') {
+	/* Inserta control de edición para campo de tipo fecha. El control tendrá la forma: 
+	 <caption> <control de edición> 
+	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
+	 control <input>. */
+	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	echo '<div class="control-field '.$class.'">';
+	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
+	// Control
+	echo '  <div class="control">';
+	echo '    <input type="time" class="form-control" ';
+	echo '    name="'.$field_name.'" value="'.$default.'" ';
+	if ($class=='cnt-disabled')	echo ' disabled ';
+	echo '    id="'.$field_name.'" >';
 	echo '  </div>';
 	//Campo para el mensaje de error
 	echo '  <div class="msg">';
@@ -412,7 +459,7 @@ function block_table_icons($title, $icon, $tabla,
 	*/
 	global $dbRowNum, $dbResult;
 	global $ICO_TRASH, $ICO_UPDATE;
-	EjecBD("SELECT * FROM $tabla ORDER BY $col_id");
+	DB_exec("SELECT * FROM $tabla ORDER BY $col_id");
 	//Convierte ícono en destino "soltable" para el arrastre.
 	$ico_drop = str_replace('<img', 
 	  '<img ondragover="event.preventDefault()"
@@ -596,6 +643,15 @@ function _gen_control($etiq, $name, $type_nam, $type_arg, $default, $class) {
 		case "decimal":
 			control_number($etiq, $name, $default, '', $class);
 			break;
+		case "float":
+			control_number($etiq, $name, $default, 'any', $class);
+			break;
+		case "date":
+			control_date($etiq, $name, $default, $class);
+			break;
+		case "time":
+			control_time($etiq, $name, $default, $class);
+			break;
 		default: 
 			echo "!!!$etiq - $type_nam - $type_arg <br>";
 			//control_edit($etiq, $name, $default);
@@ -615,11 +671,13 @@ function _gen_control_columns($cols, $column, $etiq, $subq, $valini, &$in_id) {
 	  			 el valor leído.
 	*/
 	global $dbConex;
+	$found = FALSE;
 	foreach ($cols as $row) {
 		_decode_row($row, $name, $type_nam, $type_arg, $default, $extra, $null);
 		if ($valini != '') $default = $valini;
 		if (strcasecmp($name, $column) == 0) {  //Compara
 			// Se encontró el campo.
+			$found = TRUE;
 			/* Se generará un valor para el "Name" y el "ID" del control de la forma:
 				<nombre de columna>-<tipo>-<obligatoriedad>-<auto_increment>
 			Esto es necesario para que las rutinas que insertan valores, y las rutinas
@@ -668,6 +726,7 @@ function _gen_control_columns($cols, $column, $etiq, $subq, $valini, &$in_id) {
 			break;   //Sale porque ya encontró.
 		}
 	}
+	if (!$found) alert_danger('Column not found: '.$column);
 }
 function form_insert($table, $fields, $hins, $msj_agre){
 	/* Genera HTML de un formulario para agregar registros a una
@@ -747,7 +806,7 @@ function form_insert($table, $fields, $hins, $msj_agre){
 	};');
 	/*Código para temporizar.*/
 	$js = '';
-	foreach ($ids as $campo) {  //Código para llamar a las rutinas de verifiación de llenado de campos obligatorios.
+	foreach ($ids as $campo) {  //Código para llamar a las rutinas de verificación de llenado de campos obligatorios.
 		$a = explode('-',$campo);
 		//$campo_tip = $a[1];
 		if ($a[2]=='0') continue; //Campo que puede ser NULL.
@@ -884,6 +943,36 @@ function form_update($table, $fields, $hupd, $msj_agre, $cond_reg){
 	  });
 	');
 }
+function create_menu($description, $class) {
+	/* Genera HTML de un menú, en la forma de <ul> ... </ul> 
+	 El parámetro $description tiene la forma de un arreglo de elementos:
+		[elemento1, elemento2, ... ]
+	 Cada elemento es a la vez un arreglo de  2 o 3 elementos:
+		[título, enlace]
+		[título, enlace, ícono, submenú]
+	 Un ejemplo para un menú sería:
+ 
+		$href_home= ['Inicio', $procom.'c=home'];
+		$href_cur = ['Cursos', $procom.'c=setmode&m=cur-list'];
+		$href_usu = ['Usuarios', $procom.'c=setmode&m=usu-list'];
+		create_menu([$href_home, $href_cur, $href_usu], 'menu');
+	*/
+	echo '<ul class="'.$class.'">';
+	foreach ($description as $menu) {
+		echo '<li>';
+		echo '  <a href="'.$menu[2].'">';
+		if ($menu[1]!='') {
+			echo '<img src="'.$menu[1].'" alt="ícono">';
+		}
+		echo 	  $menu[0];
+		echo '  </a>';
+		if (count($menu)>3 && count($menu[3])>0 ) {
+			create_menu($menu[3],'submenu');
+		}
+		echo '</li>';
+	}
+	echo '</ul>';
+}
 ///////////////// Rutinas back-end ///////////////
 function redirect($mode, $url_target, $error='') {
 	/* Genera código de salida del script PHP, con los parámetros
@@ -910,6 +999,8 @@ function _decodCampoPOST($campo, &$valor, &$campo_nom) {
 	//Las cadenas se completan con comillas para el INSERT
 	if ($campo_tip=='varchar') $valor="'".$valor."'";
 	if ($campo_tip=='char')    $valor="'".$valor."'";
+	if ($campo_tip=='date')    $valor="'".$valor."'";
+	if ($campo_tip=='time')    $valor="'".$valor."'";
 	//Los campos TINYINT se consdieran como boolean							  
 	if ($campo_tip=='tinyint') {
 		if ($valor=='on') $valor=1; else $valor=0;
