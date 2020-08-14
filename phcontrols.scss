@@ -22,26 +22,47 @@ $col_panel  : #e0e0e0;
     border: 1px solid transparent;
     border-radius: 4px;
 }
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
 .alert-warning {
-    color: #c09853;
-    background-color: #fcf8e3;
-    border-color: #faebcc;
+  color: #c09853;
+  background-color: #fcf8e3;
+  border-color: #faebcc;
 }
 .alert-danger {
-    color: #b94a48;
-    background-color: #f2dede;
-    border-color: #ebccd1;
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
+.but_close{  //Boton circular con un aspa
+  float:right;
+  margin-top:-34px;
+  margin-right:-23px;
+  cursor:pointer;
+  color: #fff;
+  border: 1px solid #aaa; // #ebccd1;
+  border-radius: 10px;
+  background: #bbb; // #b94a48;
+  font-size: 1.4rem;
+  //font-weight: bold;
+  display: inline-block;
+  line-height: 0px;
+  padding: 9px 3px;
+  &:before {
+    content: "×";
+  }    
 }
 .jumbotron {
   h1 {font-size: 2rem;}
-  
-
 }
 //Estilo básico de controles
 .form-control {
     display: block;
     width: 100%;
-    height: 2.1rem;
+    //height: 2.1rem;
     padding: 6px 12px;
     font-size: 0.9rem;
     line-height: 1.4;
@@ -78,14 +99,57 @@ $col_panel  : #e0e0e0;
     background-image: none;
     border: 1px solid transparent;
     border-radius: 4px;
+    a {  //Algunos botones incluyen enlaces
+      text-decoration: none;
+    }
 }
 .btn-primary { //Botón azul. Se debería usar con .btn.
+  color: #fff;
+  a { color: #fff;} //Por si incluyen enlaces
+  background-color: $col_button;
+  border-color: $col_button;
+  &:hover {
     color: #fff;
-    background-color: $col_button;
-    border-color: $col_button;
+    background-color: #286090;
+    border-color: #204d74;
+  }    
 }
+.btn-info {
+  color: #fff;
+  a { color: #fff;} //Por si incluyen enlaces
+  background-color: #5bc0de;
+  border-color: #46b8da;  
+  &:hover {
+    color: #fff;
+    background-color: #31b0d5;
+    border-color: #269abc;
+  }  
+}
+.btn-success {
+  color: #fff;
+  a { color: #fff;} //Por si incluyen enlaces
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+  &:hover {
+    color: #fff;
+    background-color: #449d44;
+    border-color: #398439;
+  }
+}
+.btn-danger {
+  color: #fff;
+  a { color: #fff;} //Por si incluyen enlaces
+  background-color: #d9534f;
+  border-color: #d43f3a;
+  &:hover {
+    color: #fff;
+    background-color: #c9302c;
+    border-color: #ac2925;
+  }
+ }
 .btn-disabled {
   color: #fff;
+  a { color: #fff;} //Por si incluyen enlaces
   background-color: $col_panel;
   border-color: $col_panel;
 }
@@ -137,6 +201,23 @@ $col_panel  : #e0e0e0;
       -ms-transform: translateX($off_x);
       transform: translateX($off_x);
     }
+}
+.link_inline {  //Enlaces "inline"
+  font-size: 0.9rem;
+  a{
+    text-decoration: underline;
+    color: #999;
+    &:hover {
+      color: #666;
+    }    
+  }
+}
+.link_block {  //Enlaces "block"
+  font-size: 0.9rem;
+  a{
+    text-decoration: none;
+    color: #999;
+  }
 }
 //Controles que representan campos de una tabla
 .control-field {
@@ -198,12 +279,17 @@ $col_panel  : #e0e0e0;
       .btns {  //Botones de la parte izquierda.
         //border: 1px solid blue;
         display: flex; //Para que estén en horizontal
-        a {
+        a, button {  //Para los botones. Por defecto es <a> pero se puede usar <button> también.
           display: block;
           margin: 0px;
           padding: 0px;
+          //Configuraciones adicionales para <button>
+          border: none; 
+          outline:none;
+          background-color: transparent ;
+          cursor: pointer;
           img {
-            display: block;
+            display: inline-block;
             height: $alt_texto;
             padding-left: 0.4rem;
           }
@@ -292,3 +378,11 @@ $col_panel  : #e0e0e0;
     //Sombreado intercalado
     tr:nth-child(even) {background-color: #f2f2f2;}
 }    
+//Estilo para formulario generado con form_insert()
+.form_insert {
+  .control-field {margin-bottom: 0.8rem;}
+  .buttons {  //Si es que hay dos botones
+    display: flex;
+    justify-content: space-around;
+  }
+}

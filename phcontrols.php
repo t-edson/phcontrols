@@ -14,10 +14,15 @@
    valor 0, para evitar que se ingresen valores NULL.
  - Los campos de contraseña, se representarán como campos de tipo
    CHAR, para que se muestren correctamente en los formularios.
+ - Los campos que alamcenen cadenas de varias líneas deben tener
+   el tipo TEXT, para que se representen como cuadro de texto de 
+   Varias líneas.
 
 				Por Tito Hinostroza 2020 - Derechos Reservados
 */
 ////////// Variables globales de base de datos //////////////
+	//Contador para generar IDs únicos
+	$id_cnt = 0;
     //Variables que se deben incializar antes de iniciar la conexión.
     $DB_HOST = 'localhost';  
     $DB_USER = '';
@@ -137,8 +142,18 @@ function DB_exee($sql) {
 	*/
 	global $dbError;
 	$result = DB_exec($sql);
-	if (!$result) jumbotron('Error!!!', 'We have problems: '.$dbError);
+	if (!$result) jumbotron('Error!!!'.'We have problems: '.$dbError);
 	return $result;
+}
+function DB_read($sql) {
+	/* Ejecuta una consulta y devuelve el primer registro del resultado. */
+	global $dbError, $dbConex;
+	$dbResult = mysqli_query($dbConex, $sql);
+	if ($dbResult == FALSE) {
+		jumbotron('Error!!!'.'We have problems: '.$dbError);
+	} else {
+		return mysqli_fetch_assoc($dbResult);
+	}
 }
 function DB_close() {
 	/* Cierra la conexión a la base de datos y libera el objeto $dbResult, si es que se 
@@ -149,26 +164,32 @@ function DB_close() {
 	if ($dbConex!=NULL) mysqli_close($dbConex);
 }
 //////////////// Mensajes ///////////////////////////////
-function alert_warning($msg) {
+function alert($msg, $class) {
+	/* Genera HTML para un mensaje con botón de cerrar. */
+	global $id_cnt;
+	$id_cnt++;
+	$id_alert = 'ale'.$id_cnt;  //Genera ID diferente.
+	echo '<div class="alert '.$class.'" id="'.$id_alert.'">';
+	echo  '<div>'.$msg.'</div>';
+	echo  '<a onclick="alert_close(\''.$id_alert.'\')" class="but_close" href="#"></a>';
+	echo '</div>';
+	//Función para desaparecer alerta
+	JSaddFunction('alert_close',"function alert_close(id){
+        $('#'+id).fadeOut('fast'); }; ");
+}
+function alert_success($msg, $class='') {
 	/* Genera HTML para un mensaje de advertencia. */
-	echo '<br>';	
-	echo '<div class="alert alert-warning">';
-	echo '  <p>'.$msg.'</p>';
-	echo '</div>';
+	alert($msg, 'alert-success '.$class);
 }
-function alert_danger($msg) {
+function alert_warning($msg, $class='') {
+	/* Genera HTML para un mensaje de advertencia. */
+	alert($msg, 'alert-warning '.$class);
+}
+function alert_danger($msg, $class='') {
 	/* Genera HTML para un mensaje de error. */
-	echo '<div class="alert alert-danger">';
-	echo $msg;
-	echo '</div>';
+	alert($msg, 'alert-danger '.$class);
 }
-function alert_danger_small($msg) {
-	/* Genera HTML para un mensaje de error. */
-	echo '<div class="alert alert-danger small">';
-	echo $msg;
-	echo '</div>';
-}
-function jumbotron($title, $txt, $butlink='', $buttxt='Go back &raquo;') {
+function jumbotron($title, $butlink='', $buttxt='Go back &raquo;') {
 	/* Muestra un mensaje con letras grandes que llena toda el área disponible.
 	Se incluye también un botón para ir a una página específica.
 	Considerar que para que se muestre en el formato correcto, se debe haber cargado 
@@ -177,10 +198,10 @@ function jumbotron($title, $txt, $butlink='', $buttxt='Go back &raquo;') {
 	echo '<br>';	
 	echo '  <div class="jumbotron">';
 	echo '    <h1>'.$title.'</h1>';
-	echo '    <p>'.$txt.'</p>';
+	//echo '    <p>'.$txt.'</p>';
 	echo '    <p> ';
 	if ($butlink!='') {
-		echo '<a class="btn btn-lg btn-primary" href="'.HWEB.'/'.$butlink.'" role="button">';
+		echo '<a class="btn btn-lg btn-primary" href="'.$butlink.'" role="button">';
 		echo   $buttxt;
 		echo '</a>';
 	}
@@ -188,20 +209,133 @@ function jumbotron($title, $txt, $butlink='', $buttxt='Go back &raquo;') {
 	echo '  </div>';
 }
 //////////////// Controls //////////////////////////////
+function label($caption, $for) {
+	/* Crea un control label, con la etiqueta "$caption". El parámetro $for 
+	es para asociar la etiqueta a un control. */
+	echo '  <label class="label" for="'.$for.'">'.$caption.'</label><br>';
+}
+function editbox($id, $default, $disabled) {
+	/* Control edit. Genera un cuadro de texto. El parámetro $id se usa como 
+	atributo "name" e "$id". */
+	echo '<input type="text" class="form-control" 
+			  name="'.$id.'" value="'.$default.'" ';
+	if ($disabled) echo ' disabled ';
+	echo '    id="'.$id.'">';
+}
+function passbox($id, $default, $disabled) {
+	/* Control edit para contraseñas. Genera un cuadro de texto. El parámetro 
+	$id se usa como atributo "name" e "$id". */
+	echo '<input type="password" class="form-control" 
+			  name="'.$id.'" value="'.$default.'" ';
+	if ($disabled) echo ' disabled ';
+	echo '    id="'.$id.'">';
+}
+function textbox($name, $default, $nrows, $disabled) {
+	/* Control edit. Genera un cuadro de texto de varias líneas.*/
+	echo '<textarea class="form-control" 
+			name="'.$name.'" rows="'.$nrows.'" ';
+	if ($disabled) echo ' disabled ';
+	echo '    id="'.$name.'">'. $default;
+	echo '</textarea>';
+}
+function listbox($name, $items, $default, $disabled) {
+	/* Control listbox. Genera una lista desplegable.*/
+	echo '    <select class="form-control" ';
+	echo '    name="'.$name.'" ';
+	if ($disabled)	echo ' disabled ';
+	echo '    id="'.$name.'">';
+	foreach ($items as $txt) {
+		$a = explode("\t", $txt);
+		$value = $a[0];  //Valor.
+		$label = (count($a)>1)?$a[1]:$value;  //Etiqueta
+		removeQuotes($value); //Siempre se quita comillas
+		removeQuotes($label); //Siempre se quita comillas
+		echo '  <option value="'.$value.'" ';
+		if ($value == $default) echo ' selected ';
+		echo ' >'.$label.'</option>';
+	}
+    echo '    </select>';
+}
+function abutton($caption, $action, $style="btn-primary") {
+	/* Inserta un botón de estilo indicado en $style, con una acción 
+	definida en el evento onclick="".
+	Ejemplo de uso: abutton('Grabar',"alert('aaa')"); */
+	echo '<div class="btn '.$style.'"';
+	if ($action!='') echo ' onclick="'.$action.'" ';
+	echo '>';
+	echo '<span>'.$caption.'</span>';
+	echo '</div>';
+}
+function hbutton($caption, $href, $style="btn-primary") {
+	/* Inserta un botón de estilo indicado en $style, con un enlace
+	o URL asociado. */
+	echo '<div class="btn '.$style.'" >';
+	echo '<span><a href="'.$href.'">'.$caption.'</a></span>';
+	echo '</div>';
+}
+function abutton_add($caption, $action) { // Botón con ícono "+".
+	abutton('✚&nbsp;&nbsp;'.$caption, $action);
+}
+function hbutton_add($caption, $href) { // Botón con ícono "+".
+	hbutton('✚&nbsp;&nbsp;'.$caption, $href);
+}
+function abutton_save($caption, $action) { // Botón con ícono de diskette.
+	abutton('&#x1f5ab;&nbsp;'.$caption, $action);
+}
+function button_submit($caption, $class='btn-primary') {  //Botón para enviar datos de un formulario
+	echo '<input type="submit" class="btn '.$class.'"';
+	echo '  value="'.$caption.'">';
+}
+function link_inline($caption, $href) {  
+	//Crea un enlace con el estilo de cambio de color 
+	echo '<span class="link_inline">';
+	echo '<a href="'.$href.'">'.$caption.'</a>';
+	echo '</span>';
+}
+function link_block($caption, $href) {  
+	//Crea un enlace con el estilo de cambio de color 
+	echo '<div class="link_block">';
+	echo '<a href="'.$href.'">'.$caption.'</a>';
+	echo '</div>';
+}
+function form_post($action, $class='') {
+	echo '<form class="'.$class.'" action="'.$action.'" method="post">';
+}
+function end_form_post() {
+	echo '</form>';
+}
+//Controles para formularios de tablas de Base de datos.
 function control_edit($caption, $field_name, $default, $class='') {
 	/* Inserta control de edición para texto. El control tendrá la forma: 
 	 <caption> <control de edición> 
 	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
 	 control <input>. */
 	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	$disabled = ($class=='cnt-disabled')? true : false;
 	echo '<div class="control-field '.$class.'">';
 	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
 	// Control
 	echo '  <div class="control">';  //Campo para el control en sí
-	echo '    <input type="text" class="form-control" 
-			  name="'.$field_name.'" value="'.$default.'" ';
-	if ($class=='cnt-disabled')	echo ' disabled ';
-	echo '    id="'.$field_name.'">';
+	editbox($field_name, $default, $disabled);	
+	echo '  </div>';
+	//Campo para el mensaje de error	
+	echo '  <div class="msg">';
+	echo '  </div>';
+	echo '</div>'."\n";
+}
+function control_text($caption, $field_name, $default, $class='') {
+	/* Inserta control de edición para texto de varias líneas. El control 
+	tendrá la forma: 
+	 <caption> <control de edición> 
+	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
+	 control <input>. */
+	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	$disabled = ($class=='cnt-disabled')? true : false;
+	echo '<div class="control-field '.$class.'">';
+	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
+	// Control
+	echo '  <div class="control">';  //Campo para el control en sí
+	textbox($field_name, $default, 5, $disabled);	
 	echo '  </div>';
 	//Campo para el mensaje de error	
 	echo '  <div class="msg">';
@@ -214,14 +348,12 @@ function control_password($caption, $field_name, $default, $class='') {
 	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
 	 control <input>. */
 	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	$disabled = ($class=='cnt-disabled')? true : false;
 	echo '<div class="control-field '.$class.'">';
 	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
 	// Control
 	echo '  <div class="control">';
-	echo '    <input type="password" class="form-control" 
-	          name="'.$field_name.'" value="'.$default.'" ';
-	if ($class=='cnt-disabled')	echo ' disabled ';
-	echo '    id="'.$field_name.'">';
+	passbox($field_name, $default, $disabled);
 	echo '  </div>';
 	//Campo para el mensaje de error
 	echo '  <div class="msg">';
@@ -323,85 +455,78 @@ function control_switch($caption, $field_name, $default, $class='') {
 function control_listbox($caption, $field_name, $items, $default, $class='') {
 	/* Inserta control de selección de lista. El control tendrá la forma: 
 	 <caption> <lista de selección> 
-	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
-	 control <select>. 
-	 $items es un arreglo de cadenas, usados para llenar la lista. Tienen
-	 la forma:  <valor>\t<etiqueta>
+	 Parámetros: 
+	 $field_name-> Es el valor que se utilizará para los atributos "name" e 
+	 			"id" del control <select>. 
+	 $items 	-> Es un arreglo de cadenas, usados para llenar la lista. Cada
+				 elemento del arreglo puede ser una sola cadena (que se usará 
+				 como etiqueta o valor del <SELECT>) o puede ser un par de 
+				 valores, la forma:  <valor>\t<etiqueta>
+	 $class		-> Nombre de clase que se usará para el contenedor principal.
+				Puede tener cualquier valor, pero cuando se indica la clase
+				'cnt-disabled', se genera el control deshabilitado.
 	*/
 	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	$disabled = ($class=='cnt-disabled')? true : false;
 	echo '<div class="control-field '.$class.'">';
 	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
 	// Control
 	echo '  <div class="control">';
-	echo '    <select class="form-control" ';
-	echo '    name="'.$field_name.'" ';
-	if ($class=='cnt-disabled')	echo ' disabled ';
-	echo '    id="'.$field_name.'">';
-	foreach ($items as $txt) {
-		$a = explode("\t", $txt);
-		$value = $a[0];  //Valor.
-		$label = (count($a)>1)?$a[1]:$value;  //Etiqueta
-		removeQuotes($label); //Para mostrar siempre se quita comillas
-		echo '  <option value="'.$value.'" ';
-		if ($value == $default) echo ' selected ';
-		echo ' >'.$label.'</option>';
-	}
-    echo '    </select>';
+	listbox($field_name, $items, $default, $disabled);
 	echo '  </div>';
 	//Campo para el mensaje de error
 	echo '  <div class="msg">';
 	echo '  </div>';
 	echo '</div>';
 }
-function button_add($caption, $action) {
-	/* Genera código HTML para un botón.
-	Un ejemplo de llamada, sería: button_add('Grabar',"alert('aaa')"); */
-	echo '<div class="btn btn-primary" 
-			onclick="'.$action.'"
-		>';
-	echo '✚&nbsp;&nbsp;'.'<span>'.$caption.'</span>';
-	echo '</div>';
-}
-function button_save($caption, $action) {
-	/* Genera código HTML para un botón.
-	Un ejemplo de llamada, sería: button_save('Grabar',"alert('aaa')"); */
-	echo '<div class="btn btn-primary" 
-			onclick="'.$action.'"
-		>';
-	echo '&#x1f5ab; '.'<span>'.$caption.'</span>';
-	echo '</div>';
-}
-function button_submit($caption) {
-	echo '<input type="submit" class="btn btn-primary"';
-	echo '  value="'.$caption.'">';
-}
 ///////////////////// Bloques /////////////////////
-function startBlock($title, $title_buttons=[]) {
-	/* Genera el HTML para crear el inicio de un bloque.
-	El bloque debe cerrarse con endBlock(). 
-	Parámetros:
-	  $title -> Título en la barra de título del bloque.
-	  $title_buttons -> Arreglo con información de botones.
-	El arreglo $title_buttons tiene la forma:
-	  $buttons = array( '+'=>'/index.php',
-						'-'=>'/otro.php');
+function startBlock($title, $title_buttons=[], $class='') {
+	/* Genera el HTML para crear el inicio de un bloque rectangular.
+	  El bloque debe cerrarse con endBlock(). 
+	  Parámetros:
+		$title        -> Título en la barra de título del bloque (En la parte 
+						superior).
+	    $title_buttons-> Arreglo con información de botones. Tiene la forma:
+	    				$buttons = array( '+'=>'/index.php',
+	  									'texto'=>'/otro.php');
+						Es decir que cada elemento del arreglo incluye un texto
+						(etiqueta o html del botón) y una URL. Tanto el texto
+						como la URL puede incluir la variable {idblk}, que será
+						reemplazada por el ID del bloque. Si la URL es nula, no
+						se genera la etiqueta <a href="..." >
+		$class        -> Clase que se usará para identificar al bloque 
+						principal, adicionalmente a la clase "panel_block".
+
+	  La función retorna el ID del contenedor div del bloque.
+	  Cada llamada a la función genera un ID diferente, de la 
+	  forma: block1, block2.
 	*/
-	echo '<div class="panel_block">';
+	global $id_cnt;
+	$id_cnt++;
+	$idblock = 'block'.$id_cnt;
+	echo '<div class="panel_block '.$class.'" id="'.$idblock.'" >';
 	echo '  <div class="panel-heading">';
 	echo '    <div class="text">'.$title.'</div>';
 	echo '    <div class="btns">'; 
 	foreach($title_buttons as $key => $val) {
 		//print "$key = $val <br>";
-		echo '  <a href="'.$val.'">'.$key.'</a>';
+		$txt = str_replace('{idblk}', $idblock, $key);
+		$href = str_replace('{idblk}', $idblock, $val);
+		if ($href=='') {
+			echo $txt;
+		} else {
+			echo '  <a href="'.$href.'">'.$txt.'</a>';
+		}
 	}
 	echo '    </div>';
 	echo '  </div>';
-    echo '  <div class="panel-body">';
+	echo '  <div class="panel-body">';
+	return $idblock;   //Devuelve ID
 }
 function endBlock() {
 	/* Genera el HTML para crear el inicio de un bloque */
-    echo '  </div>'."\n";
-    echo '</div>'."\n";
+    echo '  </div>';
+    echo '</div>';
 }
 function block_separatorh() {
 	echo '<div class="block_seph"></div>';
@@ -509,19 +634,28 @@ function table_list($fsql, $hidecols, $buttons) {
 	 de una tabla de la base de datos. Se debe haber llamado primero 
 	 a DB_open(). 
 	 Parámetros:
-		$fsql    -> Consulta a la base de datos para extraer las filas a 
-					mostrar. 
-		$hidecols-> Número de columnas de la consulta que se ocultarán.
-					Las columnas a ocultar, serán siempre las primeras.
-		$buttons -> Arreglo de botones a coloar en la última columna.
-	 La consulta en $sql, debe ser de la forma:
-		SELECT campo1, campo2 FROM tabla WHERE ...;
-	 Todos los campos indicados se mostrarán en la tabla HTML.
-	 El parámetro $buttons debe contener cadenas de la forma: 
-		<url_botón>|<icono_botón>|<descripcion_icono>
-	 El campo <url_botón> puede incluir referencias a campos de la consulta
-	 de modo que se personalicen para cada fila. Ejemplo:
-	   www.sitio.com?command=del-user&id={idUsuario}
+	 $fsql    -> Consulta a la base de datos para extraer las filas a mostrar.
+	 			La consulta debe ser de la forma:
+				 SELECT campo1, campo2 FROM tabla WHERE ...;
+				También se puede usar: SELECT * FROM tabla ...
+				Todos los campos indicados se mostrarán en la tabla HTML.
+				Para cambiar el nombre de la columna a mostrar, se puede usar 
+				el cambio de nombre mediante SQL:
+				 SELECT campo1 as NOMBRE, campo2 as EDAD, ...
+	 $hidecols-> Número de columnas de la consulta que se ocultarán. Las 
+				columnas a ocultar, serán siempre las primeras. La posibilidad
+				de ocultar columnas, permite que se incluyan campos necesarios
+				en el SELECT (como el PK de la tabla que se puede necesitar
+				para el parámetro $buttons), que no se dessen mostrar en la 
+				lista.
+	 $buttons -> Arreglo de botones a colocar en la última columna. Debe
+				contener cadenas de la forma: 
+				 <url_botón>|<icono_botón>|<descripcion_icono>|<msj_confirm>
+				El campo <url_botón> puede incluir referencias a campos de la
+				consulta, de modo que se personalicen para cada fila. Ejemplo:
+	   			 www.sitio.com?command=del-user&id={idUsuario}
+	 			El campo "msj_confirm" indica que se debe pedir confirmación
+	 			antes de pulsar el ícono.
 	*/
 	global $dbRowNum, $dbResult, $dbConex;
 	global $ICO_TRASH, $ICO_UPDATE;
@@ -576,7 +710,8 @@ function table_list($fsql, $hidecols, $buttons) {
 						$tmp = $href;   //Prepara otro reemplazo
 					}
 					//Genera enlace con ícono y etiqueta
-					echo '<a href="'.$href.'">';
+					$confirm = count($items)>3 && $items[3]!=''? 'onclick="return confirm(\''.$items[3].'\')" ': '';  //Requiere confirmación
+					echo '<a href="'.$href.'" '.$confirm.' >';
 					echo '  <img src="'.$items[1].'" alt="1" title="'.$items[2].'" height="16">';
 					echo '</a>';
 					//echo '&nbsp;';
@@ -592,10 +727,10 @@ function table_list($fsql, $hidecols, $buttons) {
 		//No hay información.
 	}
 }
-function _decode_row($row, &$name, &$type_nam, &$type_arg, &$default, &$extra, &$null) {
+function _decode_row($row, &$field, &$type_nam, &$type_arg, &$default, &$extra, &$null) {
 	/* Decodifica una fila de DESCRIBE table_name. Función para
 	ser usada por únicamente por: form_edit_table() */
-	$name    = $row['Field'];
+	$field   = $row['Field'];
 	$type_all= $row['Type'];
 	$default = $row["Default"];
 	$extra   = $row['Extra'];
@@ -611,148 +746,199 @@ function _decode_row($row, &$name, &$type_nam, &$type_arg, &$default, &$extra, &
 		$type_arg = substr($type_arg, 0, -1);  //Quita último paréntesis
 	}
 }
-function _gen_control($etiq, $name, $type_nam, $type_arg, $default, $class) {
+function _gen_control($etiq, $list_val, 
+	$col_name, $type_nam, $type_arg, $default, $extra, $null) {
 	/* Genera el html de un control, de acuerdo a los parámetros
 	 indicados:
-	  $etiq    -> Título o etiqueta que se colcoará delante del control.
-	  $name    -> Nombre a usar para el elemento INPUT o SELECT del control.
-	  		    Este valor también se usará para el ID.
+	  $etiq    -> Título o etiqueta que se colocará delante del control.
+	  $list_val-> Lista de valores para generar una lista desplegable. Se espera 
+				que la lista sea de la forma: 'a','b','c'
+				O de la forma: 1,2,3
+				Las comillas no se considerarán y el tipo se los ítems se asumira
+				de $type_nam.
+				La lista también puede incluir dos campos separador por tabulación:
+					<valor1>\t<etiqueta1>,<valor2>\t<etiqueta2>, ...
+				Solo se genera la lista cuando contiene texto.
+	  $col_name-> Nombre de la columna de la tabla a editar.
 	  $type_nam-> Nombre del tipo de dato a usar para el control.
 	  $type_arg-> Dato adicional del tipo.
 	  $default -> Valor por defecto que toma el control.
-	  $class   -> Clase a usar para el control.
+	  $extra   -> Parámetros extra de la columna en base de datos.
+	  $null    -> Indica si el campo soporta valores nulos.
+
+	 La función devuelve un ID creado para el control, de la forma:
+
+		<nombre de columna>-<tipo>-<obligatoriedad>-<auto_increment>
+
+	 La forma de este ID es necesario para las rutinas que insertan valores en la 
+	 tabla (back-end), y para las rutinas de verificación "javascript" (front-end)
+	 que verifican si los campos obligatorios son llenados. 
 	*/
-	switch ($type_nam) {
-		case "varchar":
-			control_edit($etiq, $name, $default, $class);
-			break;
-		case "char":
-			control_password($etiq, $name, $default, $class);
-			break;
-		case "int":
-			control_number($etiq, $name, $default, '', $class);
-			break;
-		case "tinyint":
-			control_switch($etiq, $name, $default, $class);
-			break;
-		case "enum":
-			//$type_arg = str_replace("'",'', $type_arg); 
-			$items = explode(',', $type_arg);
-			control_listbox($etiq, $name, $items, $default, $class);
-			break;
-		case "decimal":
-			control_number($etiq, $name, $default, '', $class);
-			break;
-		case "float":
-			control_number($etiq, $name, $default, 'any', $class);
-			break;
-		case "date":
-			control_date($etiq, $name, $default, $class);
-			break;
-		case "time":
-			control_time($etiq, $name, $default, $class);
-			break;
-		default: 
-			echo "!!!$etiq - $type_nam - $type_arg <br>";
-			//control_edit($etiq, $name, $default);
+	//Verifica si debe deshabilitar el control y si debe ponerse el "*" en el campo.
+	if ($extra=='auto_increment') {
+		//Los campos auto-incrementables, no deben editarse
+		$class = 'cnt-disabled';  //Para deshabilitar el control
+		$default = '';  //Para que no aparezca ningún valor
+	} else {
+		$class = '';
+		//Verifica si debe agregar el "*" en campos obligatorios.
+		if ($null=='NO') {
+			$etiq = $etiq.'*';
+		}		
 	}
+	//Construye ID del control: 
+	/* Se construye el ID del control, en la forma prevista. Este valor se
+	usará luego para los atributos "id" y "name" del control a crear. */
+	if ($extra=='auto_increment') $a_inc = '1'; else $a_inc = '0';
+	if ($null =='NO') $oblig = '1'; else $oblig = '0';
+	$in_id = $col_name.'-'.$type_nam.'-'.$oblig.'-'.$a_inc;  
+	//Crea el control de acuerdo al tipo.
+	if ($list_val!='') {
+		//Caso especial. Se pide crear una lista desplegable.
+		$items = explode(',', $list_val);  //Fallará si hay comas dentro de las comillas.
+		control_listbox($etiq, $in_id, $items, $default, $class);
+	} else {
+		//Crea control de acuerdo al tipo de columna.
+		switch ($type_nam) {
+			case "varchar":
+				control_edit($etiq, $in_id, $default, $class);
+				break;
+			case "text":
+				control_text($etiq, $in_id, $default, $class);
+				break;
+			case "char":
+				control_password($etiq, $in_id, $default, $class);
+				break;
+			case "int":
+				control_number($etiq, $in_id, $default, '', $class);
+				break;
+			case "tinyint":
+				control_switch($etiq, $in_id, $default, $class);
+				break;
+			case "enum":
+				/*No se espera usar este caso, porque los enumerados se convierten
+				al tipo cadena y se pone la lista de valores en "list_val" */
+				$items = explode(',', $type_arg);
+				control_listbox($etiq, $in_id, $items, $default, $class);
+				break;
+			case "decimal":
+				control_number($etiq, $in_id, $default, '', $class);
+				break;
+			case "float":
+				control_number($etiq, $in_id, $default, 'any', $class);
+				break;
+			case "date":
+				control_date($etiq, $in_id, $default, $class);
+				break;
+			case "time":
+				control_time($etiq, $in_id, $default, $class);
+				break;
+			default: 
+				echo "!!!$etiq - $type_nam - $type_arg <br>";
+				//control_edit($etiq, $in_id, $default);
+		}
+	}
+	return $in_id;
 }
-function _gen_control_columns($cols, $column, $etiq, $subq, $valini, &$in_id) {
+function _gen_control_columns($cols, $column, $etiq, $subq, $valini, &$in_id, 
+				$modo = 'insert') {
 	/* Genera un control en HTML para una columna de una tabla 
-	  Parámetros:
-	  $cols   -> Arreglo con información sobre las columnas de la tabla.
-	  $column -> Nombre de la columna de la tabla para la que se creará
-				 el control. Se ignora la caja.
-	  $etiq   -> Etiqueta o título que se pondrá antes del control.
-	  $subq   -> Subquery. Consulta que se debe hacer para obtener los valores
-				   permitidos de este campo.
-	  $valini -> Valor inicial del campo. Si es cadena vacía, se ignora.
-	  $in_id  -> Devuelve el ID del elemento INPUT o equivalente, que alamcena 
-	  			 el valor leído.
+	 Parámetros:
+	 $cols   -> Arreglo con información sobre las columnas de la tabla.
+	 $column -> Nombre de la columna de la tabla para la que se creará
+				el control. Se ignora la caja.
+	 $etiq   -> Etiqueta o título que se pondrá antes del control.
+	 $subq   -> Subquery. Consulta que se debe hacer para obtener los valores
+				permitidos de este campo.
+	 $valini -> Valor inicial del campo. Si es cadena vacía, se ignora.
+	 $in_id  -> Devuelve el ID del elemento INPUT o equivalente, que almacena 
+				el valor leído.
+	 $modo	 -> Modo de trabajo: "insert" o "update". En el modo "insert" se
+				ignora el valor $valini.
 	*/
 	global $dbConex;
 	$found = FALSE;
 	foreach ($cols as $row) {
-		_decode_row($row, $name, $type_nam, $type_arg, $default, $extra, $null);
-		if ($valini != '') $default = $valini;
-		if (strcasecmp($name, $column) == 0) {  //Compara
+		$col_name = $row['Field'];  //Nombre de la columna de la tabla.
+		if (strcasecmp($col_name, $column) == 0) {  //Compara
+			//Decodifica toda la información de la columna.
+			_decode_row($row, $col_name, $type_nam, $type_arg, $default, $extra, $null);
 			// Se encontró el campo.
 			$found = TRUE;
-			/* Se generará un valor para el "Name" y el "ID" del control de la forma:
-				<nombre de columna>-<tipo>-<obligatoriedad>-<auto_increment>
-			Esto es necesario para que las rutinas que insertan valores, y las rutinas
-			de verificación "javascript", puedan trabajar correctamente. */
+			$list_val = '';  //Inicializa lista de valores.
+			//Verifica valor inicial.
+			if ($modo == 'insert') {  //Modo insert
+				//Se deja el $default.
+			} else {				//Modo Update
+				$default = $valini;  //Se fija el valor
+			}
+			//Genera lista desplegable para los enumerados
+			if ($type_nam=='enum') {
+				$list_val = $type_arg;  //Para que genere lista.
+				$type_nam = 'varchar';  //Todos los enumerados son de tipo cadena en MYSQL
+				/* Notar que se está convirtiendo el tipo "enum" a "varchar" para
+				que las rutinas de back-end construyan bien el SQL.*/
+				//Verifica valor inicial.
+				if ($default!='') {  //Hay valor inicial
+					removeQuotes($default);  //Quita comillas por si acaso
+				}
+			}
 			//Verifica si el campo requiere consulta a la base de datos.
-			if ($subq!='') {
-				/*Se genera un control de tipo lista desplegable, cambiando 
-				el tipo del campo. Hay que tomar en cuenta este posible cambio 
-				para evitar problemas posteriores. */
-				$type_nam='enum';  //Se considera como enum. 
-				//Obtiene valores
-				$type_arg = '';
+			if ($subq!='') {  //Hay subconsulta.
+				/*Se genera un control de tipo lista desplegable, manteniendo el 
+				tipo del campo. */
+				$list_val = '';
 				$q = mysqli_query($dbConex, $subq);
-				while ($row = mysqli_fetch_array($q)) {
-					$cols[] = $row; //Acumula en el arreglo.
-					$type_arg.= $row[0].",";  //Se deja libertad a la consulta para incluir comillas o no.
-					//$type_arg.="'".$row[0]."',";
+				while ($val = mysqli_fetch_array($q)) {
+					$list_val.= $val[0].",";  
+					//$list_val.="'".$val[0]."',";
 				}
-				if ($type_arg!='') {  //Quita coma final
-					$type_arg = substr($type_arg, 0, -1);
+				if ($list_val!='') {  //Quita coma final
+					$list_val = substr($list_val, 0, -1);
 				}
-				//$type_arg="'aaa','bbb'";  //Valores 
+				//$list_val="'aaa','bbb'";  //Valores 
 			}
-			if ($null=='NO') {  //Es obligatorio, No puede ser NULL.
-				//Agrega código Javascript de verificación.
-				//JSaddCode('$("#'.$in_id.'").on("change keyup paste", function(){
-				//valid("#'.$in_id.'"); });');
-				if ($extra=='auto_increment') {
-					$in_id = $name.'-'.$type_nam.'-1-1';  //Obligatorio y autoincrement
-					//Los campos auto_increment no se editan. Aparecerán deshabilitados
-					_gen_control($etiq, $in_id, $type_nam, $type_arg, '', 'cnt-disabled');
-				} else {
-					$in_id = $name.'-'.$type_nam.'-1-0';  //Obligatorio y normal.
-					_gen_control($etiq.'*', $in_id, $type_nam, $type_arg, $default, '');
-				}
-			} else {  //Campo no obligatorio.
-				if ($extra=='auto_increment') {  //Sería raro un auto_increment "Nullable".
-					$in_id = $name.'-'.$type_nam.'-0-1';  //Obligatorio y autoincrement
-					//Los campos auto_increment no se editan. Aparecerán deshabilitados
-					_gen_control($etiq, $in_id, $type_nam, $type_arg, '', 'cnt-disabled');
-				} else {
-					$in_id = $name.'-'.$type_nam.'-0-0';  //Obligatorio y normal.
-					_gen_control($etiq, $in_id, $type_nam, $type_arg, $default, '');
-				}
-			}
+			//Genera el control
+			$in_id = _gen_control($etiq, $list_val, 
+				$col_name, $type_nam, $type_arg, $default, $extra, $null);
 			break;   //Sale porque ya encontró.
 		}
 	}
 	if (!$found) alert_danger('Column not found: '.$column);
 }
-function form_insert($table, $fields, $hins, $msj_agre){
-	/* Genera HTML de un formulario para agregar registros a una
-	  tabla. Parámetros:
-		$table  -> Tabla a editar.
-		$fields -> Arreglo de campos que se desean editar. Debe tener la forma: 
-			       $fields = ['idReg|ID','Nombre', 'direccion|Dirección'];
-		$hins   -> Enlace a donde se envía con el botón "Agregar".
-		El formato de los ítems de $fields[] es:
-			<nombre columna>|<etiqueta>|<Subconsulta>
-		<Subconsulta> es la consulta SQL que devuelve los valores que puede
-		tomar el campo. La consulta debe devolver una lista de valores, de la 
-		forma:	
-			<valor>
-			<valor>
-			<valor>
-		O también de la forma:
-			<valor>-<etiqueta>
-			<valor>-<etiqueta>
-			<valor>-<etiqueta>
-		Ejemplos de subconsultas son:
-			select idInstitucion from instituciones
-			select concat('''',idPerfil,'''-',idPerfil) from perfiles
-		El campo <valor> se usará para construir la sentencia INSERT cuando
-		se agregue el registro. Si los valores a insertar son cadena, se deben 
-		encerrar entre apóstrofos.
+function form_insert($table, $fields, $hins, $hret, $msj_agre){
+	/* Genera HTML de un formulario para agregar registros a una tabla. Un 
+	 formulario, de este tipo, aparece con sus campos en blanco o con los
+	 valores por defecto, que se hayan definido en la creación de la tabla.
+	 Parámetros:
+	 $table  -> Tabla a editar.
+	 $fields -> Arreglo de campos que se desean editar. Debe tener la forma:
+					$fields = ['idReg|ID','Nombre', 'direccion|Dirección'];
+				El formato completo de los ítems de $fields[] es:
+					<nombre_colum>|<etiqueta>|<Subconsulta>|<valor_inic>
+				El valor <nombre_colum> es el nombre de la columna, de $table,
+				que se usará para este campo.
+				Si no se indica <etiqueta>, se usará <nombre_colum> en su lugar.
+				<Subconsulta> es la consulta SQL que devuelve los valores que 
+					puede tomar el campo. La consulta debe devolver una lista de
+					valores, de la forma:	
+						<valor>
+						<valor>
+					O también de la forma:
+						<valor>-<etiqueta>
+						<valor>-<etiqueta>
+					Ejemplos de subconsultas son:
+						select idInstitucion from instituciones
+						select concat(idPerfil,'-',idPerfil) from perfiles
+					El campo <valor> se usará para construir la sentencia INSERT
+					cuando se agregue el registro.
+				<valor_inic> es el valor inicial que se le asignará al campo 
+				cuando se muestre el fomulario. Normalmente no se especificará un
+				valor inicial al campo, porque el formulario es para crear un
+				nuevo registro de la tabla.
+	 $hins   -> Enlace a donde se envía con el botón "Agregar".
+	 $hret	->	Enlace a donde se envía con el botón "Volver". Si es una
+				cadena nula, no se genera este botón.
 	*/
 	global $dbConex;
 	//Lee información de la tabla en el arreglo $cols()
@@ -767,12 +953,12 @@ function form_insert($table, $fields, $hins, $msj_agre){
 		$ids = [];   //Inicia arreglo
 		foreach ($cols as $row) {
 			_decode_row($row, $name, $type_nam, $type_arg, $default,  $extra, $null);
-			_gen_control_columns($cols, $name, $name, '', '', $in_id);
+			_gen_control_columns($cols, $name, $name, '', '', $in_id, 'insert');
 			$ids[] =  $in_id;  //Devuelve índice 
 		}
 	} else {  //Para las columnas indicadas
 		/* Se espera que el formato sea: 
-			<nombre columna>|<etiqueta>|<subquery> 
+			<nombre_colum>|<etiqueta>|<Subconsulta>|<valor inicial>
 		*/
 		$ids = [];   //Inicia arreglo
 		foreach($fields as $item) {  //Explora las columna indicadas
@@ -784,12 +970,24 @@ function form_insert($table, $fields, $hins, $msj_agre){
 			else $etiq=$name; 
 			if (count($a)>2) $subquery=trim($a[2]); //Subquery
 			else $subquery='';
-			//if (count($a)>2) $obli = '*'; else $obli = '';
-			_gen_control_columns($cols, $name, $etiq, $subquery, '', $in_id);
+			if (count($a)>3) $valini = trim($a[3]); //Valor inicial
+			else $valini = '';  
+			if ($valini!='') {  //Caso especial donde se indica un valor inicial
+				_gen_control_columns($cols, $name, $etiq, $subquery, $valini, $in_id, 'update');
+			} else {  //Caso normal de campo en modo "Insert".
+				_gen_control_columns($cols, $name, $etiq, $subquery, '', $in_id, 'insert');
+			}
 			$ids[] =  $in_id;  //Devuelve índice 
 		}
 	}
-	button_submit($msj_agre);
+	if ($hret=='') {  //Botón único
+		button_submit($msj_agre);
+	} else {  //Con botón "Volver"
+		echo '<div class="buttons">';
+		button_submit($msj_agre);
+		hbutton('<< Volver', $hret);
+		echo '</div>';
+	} 
 	echo '</form>';
 	/*Genera código javascript para validación de datos obligatorios.
 	La función devuelve TRUE si el campo no es válido. */
@@ -835,33 +1033,35 @@ function form_insert($table, $fields, $hins, $msj_agre){
 	  });
 	');		
 }
-function form_update($table, $fields, $hupd, $msj_agre, $cond_reg){
+function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 	/* Genera HTML de un formulario para editar registros de una 
-	  tabla. Parámetros:
-		$table  -> Tabla a editar.
-		$fields -> Arreglo de campos que se desean editar. Debe tener la forma: 
-			       $fields = ['idReg|ID','Nombre', 'direccion|Dirección'];
-		$hupd   -> Enlace a donde se envía con el botón "Grabar".
-		$cond   -> Condición de la consulta que devolverá un registro. Se espera
-					que sea de la forma: "ID = 12345"
-		El formato de los ítems de $fields[] es:
-			<nombre columna>|<etiqueta>|<Subconsulta>
-		<Subconsulta> es la consulta SQL que devuelve los valores que puede
-		tomar el campo. La consulta debe devolver una lista de valores, de la 
-		forma:	
-			<valor>
-			<valor>
-			<valor>
-		O también de la forma:
-			<valor>-<etiqueta>
-			<valor>-<etiqueta>
-			<valor>-<etiqueta>
-		Ejemplos de subconsultas son:
-			select idInstitucion from instituciones
-			select concat('''',idPerfil,'''-',idPerfil) from perfiles
-		El campo <valor> se usará para construir la sentencia INSERT cuando
-		se agregue el registro. Si los valores a insertar son cadena, se deben 
-		encerrar entre apóstrofos.
+	 tabla. Parámetros:
+	 $table  -> Tabla a editar.
+	 $fields -> Arreglo de campos que se desean editar. Debe tener la forma:
+				$fields = ['idReg|ID','Nombre', 'direccion|Dirección'];
+				El formato de los ítems de $fields[] es:
+					<nombre colum>|<etiqueta>|<Subconsulta>
+				El valor <nombre_colum> es el nombre de la columna, de $table,
+				que se usará para este campo.
+				Si no se indica <etiqueta>, se usará <nombre_colum> en su lugar.
+				<Subconsulta> es la consulta SQL que devuelve los valores que 
+					puede tomar el campo. La consulta debe devolver una lista de
+					valores, de la forma:	
+						<valor>
+						<valor>
+					O también de la forma:
+						<valor>-<etiqueta>
+						<valor>-<etiqueta>
+					Ejemplos de subconsultas son:
+						select idInstitucion from instituciones
+						select concat(idPerfil,'-',idPerfil) from perfiles
+					El campo <valor> se usará para construir la sentencia INSERT
+					cuando se agregue el registro.
+	$hupd   -> Enlace a donde se envía con el botón "Grabar".
+	$hret	-> Enlace a donde se envía con el botón "Volver". Si es una 
+				cadena nula, no se genera este botón.
+	$cond_reg->Condición de la consulta que devolverá un registro. Se 
+				espera que sea de la forma: "ID = 12345"
 	*/
 	global $dbConex;
 	//Lee información de la tabla en el arreglo $cols()
@@ -873,7 +1073,7 @@ function form_update($table, $fields, $hupd, $msj_agre, $cond_reg){
 	//Consulta para acceder al registro a editar
 	$q = mysqli_query($dbConex, "select * from $table where $cond_reg");
 	if ($row = mysqli_fetch_array($q)) {
-		//En $row[] tenemos el resultado.
+		//En $row[] tenemos el resultado. Solo una fila.
 		echo '<form class="form_insert" action="'.$hupd.'" method="post" >';
 		$ids = [];   //Inicia arreglo
 		foreach($fields as $item) {  //Explora las columna indicadas
@@ -889,11 +1089,18 @@ function form_update($table, $fields, $hupd, $msj_agre, $cond_reg){
 			if (count($a)>2) $subquery=trim($a[2]); //Subquery
 			else $subquery='';
 			$valor = $row[$name];
-			_gen_control_columns($cols, $name, $etiq, $subquery, $valor, $in_id);
+			_gen_control_columns($cols, $name, $etiq, $subquery, $valor, $in_id, 'update');
 			$ids[] =  $in_id;  //Devuelve índice 
 		}
 
-		button_submit($msj_agre);
+		if ($hret=='') {  //Botón único
+			button_submit($msj_agre);
+		} else {  //Con botón "Volver"
+			echo '<div class="buttons">';
+			button_submit($msj_agre);
+			hbutton('<< Volver', $hret);
+			echo '</div>';
+		} 
 		echo '</form>';
 	} else {
 		//No hay resultados.
@@ -952,9 +1159,9 @@ function create_menu($description, $class) {
 		[título, enlace, ícono, submenú]
 	 Un ejemplo para un menú sería:
  
-		$href_home= ['Inicio', $procom.'c=home'];
-		$href_cur = ['Cursos', $procom.'c=setmode&m=cur-list'];
-		$href_usu = ['Usuarios', $procom.'c=setmode&m=usu-list'];
+		$href_home= ['Inicio', 'www.misitio.com'];
+		$href_cur = ['Cursos', 'www.misitio.com/cur-list'];
+		$href_usu = ['Usuarios', 'www.misitio.com/usu-list'];
 		create_menu([$href_home, $href_cur, $href_usu], 'menu');
 	*/
 	echo '<ul class="'.$class.'">';
@@ -974,14 +1181,53 @@ function create_menu($description, $class) {
 	echo '</ul>';
 }
 ///////////////// Rutinas back-end ///////////////
-function redirect($mode, $url_target, $error='') {
-	/* Genera código de salida del script PHP, con los parámetros
-	indicados. */
-	$_SESSION['mode'] = $mode;
+function redir($error='') {
+	/* Genera código de salida del script PHP, con los parámetros indicados.
+	 Esta función realiza las siguientes tarea:
+	 - Genera código de redirección a la página destino. La página destino es
+	  la que misma que llamó a esta página, o a la página indicada en el 
+	  parámetro GET: "dest".
+	 - Devuelve el texto indicado en el parámetro "error", como parámetro GET
+	 al momento de devolver el control a la página destino.
+	 - Devuelve todos los parámetros que se reciben (como GET o POST), como
+	 valores $_SESSION[], al momento de realizar la llamada a la página destino.
+	 - Devuelve el parámetro "mode", como parámetro GET al realizar la llamada
+	 a la página destino. El parámetro "mode" se devuelve de dos formas: Como 
+	 parámetro GET "m", y como valor en $_SESSION[].
+	 */
+	//Lee dirección de retorno
+	$target = $_SERVER['HTTP_REFERER']; //Por defecto es la página de donde vino
+	$target = explode('?',$target)[0];  //Quita parámetro GET, por si venía incluido.
+	if ( isset($_GET['dest']) ) $target = $_GET['dest'];  //A menos que se indique este parámetro
+	//Lee modo de destino
+	if ( isset($_GET['m']) ) $mode = $_GET['m']; 
+	else $mode='';
+	//Redirecciona
+	//echo '---'.$mode;	
+	if ($mode=='') {  //No se especifica un modo 
+		//El modo se mantendrá al que estaba en $_SESSION['mode']
+		$mode = $_SESSION['mode'];
+	} else { //Se pide fijar el modo destino
+		//Explora todos los parámetros GET para devolverlos en $_SESSION:
+		foreach($_GET as $campo => $valor){
+			if ($campo=='usuario') continue;  //Protección
+			if ($campo=='rol') continue;	  //Protección
+			//Notar que también puede devolver el "m" y "c".
+			$_SESSION[$campo] = $valor;
+		}
+		//Explora todos los parámetros POST para devolverlos en $_SESSION:
+		foreach($_POST as $campo => $valor){
+			if ($campo=='usuario') continue;  //Protección
+			if ($campo=='rol') continue;	  //Protección
+			$_SESSION[$campo] = $valor;
+		}
+		//Cambia finalmente el modo
+		$_SESSION['mode'] = $mode;
+	}  
 	if ($error=='') {
-		header("location:".$url_target);
+		header("location:".$target.'?mod='.$mode);
 	} else {
-		header("location:".$url_target."?e=".$error);
+		header("location:".$target.'?mod='.$mode.'&e='.$error);
 	}
 	return 0;   //Por si se necesita usarlo como función.
 }
@@ -990,6 +1236,11 @@ function _decodCampoPOST($campo, &$valor, &$campo_nom) {
 	un formulario creado con form_insert(). 
 	El valor de $campo tiene la forma: 
 		<nombre de columna>-<tipo>-<obligatoriedad>-<auto_increment>
+	Los campos <obligatoriedad> y <auto_increment> no se usan aquí. pero se 
+	han incluido en el ID de los controles porque las rutinas Javascript lo 
+	necesitan así.
+	Los campos de tipo 'auto-increment' no llegan aquí, porque no se envían 
+	desde el formulario.
 	*/
 	$a = explode('-',$campo);
 	//echo $campo.':'.$valor.'<br>';	
@@ -999,14 +1250,21 @@ function _decodCampoPOST($campo, &$valor, &$campo_nom) {
 	//Las cadenas se completan con comillas para el INSERT
 	if ($campo_tip=='varchar') $valor="'".$valor."'";
 	if ($campo_tip=='char')    $valor="'".$valor."'";
-	if ($campo_tip=='date')    $valor="'".$valor."'";
+	if ($campo_tip=='text')    $valor="'".$valor."'";
+	if ($campo_tip=='date') {
+		if ($valor=='') {
+			$valor = 'NULL';
+		} else {
+			$valor="'".$valor."'";
+		}
+	}
 	if ($campo_tip=='time')    $valor="'".$valor."'";
-	//Los campos TINYINT se consdieran como boolean							  
+	//Los campos TINYINT se consideran como "boolean".
 	if ($campo_tip=='tinyint') {
 		if ($valor=='on') $valor=1; else $valor=0;
 	}
-	/*Los tipos enumerados no se completan. Se insertarán como 
-	vengan, con comillas o sin ellas.
+	/*Los tipos enumerados no llegan a este nivel. Aparecen como campo de tipo
+	cadena o de otro tipo.
 	if ($campo_tip=='enum') */
 	//Los valores vacíos se consideran como NULL.
 	if ($valor=='') $valor='NULL';
