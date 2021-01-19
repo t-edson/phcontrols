@@ -1,0 +1,7 @@
+0.2
+===
+Se crea la carpeta /_screens y se mueven allí las capturas de pantalla.
+Se incluye la imagen "add64.png" como parte de la librería.
+Se cambia la referencia a "add64.png" dentro de "phcontrols.php", para que lo
+busque siempre en la misma carpeta en donde se encuentra "phcontrols.php".
+Se incluye el archivo "cambios.txt".

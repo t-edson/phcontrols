@@ -609,8 +609,8 @@ function block_table_icons($title, $icon, $tabla,
 	  }
 	}
 	//Agrega botón "Agregar ..."
-	//$hadd = str_replace('{id}', '', $hadd);
-	_item_bloque($msj_agre,'/images/add64.png', '', $hadd, false);
+//	_item_bloque($msj_agre,'/images/add64.png', '', $hadd, false);
+	_item_bloque($msj_agre, __DIR__ .'add64.png', '', $hadd, false);
 	endBlock();
 	//Agrega rutinas Javascript
 	//Rutina para drag-drop. Basada en: https://www.w3schools.com/html/tryit.asp?filename=tryhtml5_draganddrop 
