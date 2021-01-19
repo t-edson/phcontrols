@@ -31,20 +31,25 @@ The library doesn't force to use a special architecture for the application.
 * Routines to access MySQL database:
   * DB_set_mysql()
   * DB_open()
-  * EjBD($sql)
-  * EjecBD($sql)
+  * DB_exec($sql)
+  * DB_exee($sql)
+  * DB_read($sql)
   * DB_close()
 
 * Routines to create Messages:
-  * alert_warning($msg)
-  * alert_danger($msg)
-  * alert_danger_small($msg)
-  * jumbotron($msg, $pagRetorno, $txtBoton)
+  * alert($msg, $class)
+  * alert_success($msg, $class='')
+  * alert_warning($msg, $class='')
+  * alert_danger($msg, $class='')
+  * jumbotron($title, $butlink='', $buttxt='Go back &raquo;')
 
 * Routines to create Controls
   * control_edit($caption, $field_name, $default, $class='')
+  * control_text($caption, $field_name, $default, $class='')
   * control_password($caption, $field_name, $default, $class='')
   * control_number($caption, $field_name, $default, $step, $class='')
+  * control_date($caption, $field_name, $default, $class='')
+  * control_time($caption, $field_name, $default, $class='')
   * control_switch($caption, $field_name, $default, $class='')
   * control_listbox($caption, $field_name, $items, $default, $class='')
   * button_add($caption, $action)
@@ -52,7 +57,7 @@ The library doesn't force to use a special architecture for the application.
   * button_submit($caption)
 
 * Routines to create Frames
-  * startBlock($title, $title_buttons=[])
+  * startBlock($title, $title_buttons=[], $class='')
   * endBlock()
   * block_separatorh()
 
@@ -61,9 +66,10 @@ The library doesn't force to use a special architecture for the application.
   * table_list($fsql, $hidecols, $buttons)
   * form_insert($table, $fields, $hins, $msj_agre)
   * form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
+  * create_menu($description, $class)
 
 * Routines for back-end
-  * redirect($mode, $url_target, $error='')
+  * redir($error='')
   * get_SQL_insert($table)
   * get_SQL_update($table, $cond_reg)
   * read_col_POST($col_name)
@@ -129,7 +135,7 @@ Hello World page can be created in a file index.php with the following code:
 
 The output would be:
 
-![sample page](https://github.com/t-edson/phcontrols/blob/master/sample1.png?raw=true)
+![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample1.png?raw=true)
 
 A simple database connnection to show a table list is:
 
@@ -150,4 +156,4 @@ A simple database connnection to show a table list is:
 
 The output would be:
 
-![sample page](https://github.com/t-edson/phcontrols/blob/master/sample2.png?raw=true)
+![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample2.png?raw=true)
