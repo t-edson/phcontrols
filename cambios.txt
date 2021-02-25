@@ -4,4 +4,8 @@ Se crea la carpeta /_screens y se mueven allí las capturas de pantalla.
 Se incluye la imagen "add64.png" como parte de la librería.
 Se cambia la referencia a "add64.png" dentro de "phcontrols.php", para que lo
 busque siempre en la misma carpeta en donde se encuentra "phcontrols.php".
+Se corrige _decodCampoPOST() y control_switch() para que puedan leer correctamente
+los valores de los campos BOOLEAN de los formularios, cuand se editan o agregan.
+Se corrigen los comentarios de form_update() y form_insert() que daban información 
+errónea sobre los separadores de las consultas del parámetro $fields.
 Se incluye el archivo "cambios.txt".

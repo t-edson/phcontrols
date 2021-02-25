@@ -275,6 +275,8 @@ $col_panel  : #e0e0e0;
       .text {  //Título
         //border: 1px solid blue;
         font-size: $alt_texto;
+        color:#333;       
+        a {color:#333;}
       }
       .btns {  //Botones de la parte izquierda.
         //border: 1px solid blue;

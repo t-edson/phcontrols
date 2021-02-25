@@ -20,6 +20,11 @@
 
 				Por Tito Hinostroza 2020 - Derechos Reservados
 */
+////////// Íconos usados
+//$ICO_TRASH  = '<img src="'.HWEB.'/_images/bin.png" alt="trash icon">';
+//$ICO_UPDATE = '<img src="'.HWEB.'/_images/spinner11.png" alt="update icon">';
+	$ICO_TRASH  = '<img src="'.__DIR__.'/bin.png" alt="trash icon">';
+	$ICO_UPDATE = '<img src="'.__DIR__.'/spinner11.png" alt="update icon">';
 ////////// Variables globales de base de datos //////////////
 	//Contador para generar IDs únicos
 	$id_cnt = 0;
@@ -435,6 +440,10 @@ function control_switch($caption, $field_name, $default, $class='') {
 	// Control
 	echo '  <div class="control">';
 	echo '    <label class="switch">';
+	/*Control oculto adicional para que el requerimiento POST envíe información
+	 cuando el checkbox siguiente esté en falso (De otra forma no se envía por POST).*/
+	echo '  <input type="hidden" value="0" name="'.$field_name.'">';
+	//Control "checkbox" principal.
 	if ($default == 1) {
 		echo '  <input type="checkbox" name="'.$field_name.'" checked ';
 		if ($class=='cnt-disabled')	echo ' disabled ';
@@ -925,11 +934,11 @@ function form_insert($table, $fields, $hins, $hret, $msj_agre){
 						<valor>
 						<valor>
 					O también de la forma:
-						<valor>-<etiqueta>
-						<valor>-<etiqueta>
+						<valor><tabulación><etiqueta>
+						<valor><tabulación><etiqueta>
 					Ejemplos de subconsultas son:
 						select idInstitucion from instituciones
-						select concat(idPerfil,'-',idPerfil) from perfiles
+						select concat(idPerfil,'\t',idPerfil) from perfiles
 					El campo <valor> se usará para construir la sentencia INSERT
 					cuando se agregue el registro.
 				<valor_inic> es el valor inicial que se le asignará al campo 
@@ -1050,11 +1059,11 @@ function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 						<valor>
 						<valor>
 					O también de la forma:
-						<valor>-<etiqueta>
-						<valor>-<etiqueta>
+						<valor><tabulación><etiqueta>
+						<valor><tabulación><etiqueta>
 					Ejemplos de subconsultas son:
 						select idInstitucion from instituciones
-						select concat(idPerfil,'-',idPerfil) from perfiles
+						select concat(idPerfil,'\t',idPerfil) from perfiles
 					El campo <valor> se usará para construir la sentencia INSERT
 					cuando se agregue el registro.
 	$hupd   -> Enlace a donde se envía con el botón "Grabar".
@@ -1185,8 +1194,8 @@ function redir($error='') {
 	/* Genera código de salida del script PHP, con los parámetros indicados.
 	 Esta función realiza las siguientes tarea:
 	 - Genera código de redirección a la página destino. La página destino es
-	  la que misma que llamó a esta página, o a la página indicada en el 
-	  parámetro GET: "dest".
+	 la que misma que llamó a esta página, o a la página indicada en el 
+	 parámetro GET: "dest".
 	 - Devuelve el texto indicado en el parámetro "error", como parámetro GET
 	 al momento de devolver el control a la página destino.
 	 - Devuelve todos los parámetros que se reciben (como GET o POST), como
@@ -1196,14 +1205,20 @@ function redir($error='') {
 	 parámetro GET "m", y como valor en $_SESSION[].
 	 */
 	//Lee dirección de retorno
-	$target = $_SERVER['HTTP_REFERER']; //Por defecto es la página de donde vino
+	$target = $_SERVER['HTTP_REFERER']; //Por defecto es la página de donde vino. Casi siempre index.php.
 	$target = explode('?',$target)[0];  //Quita parámetro GET, por si venía incluido.
-	if ( isset($_GET['dest']) ) $target = $_GET['dest'];  //A menos que se indique este parámetro
+	if ( isset($_GET['dest']) ) $target = $_GET['dest'];  //A menos que se indique este parámetro.
 	//Lee modo de destino
 	if ( isset($_GET['m']) ) $mode = $_GET['m']; 
 	else $mode='';
+	if ($mode=='_ret') {  //Se pide retornar al modo anterior
+		//El modo anterior se lee de $_SESSION['maf']
+		if (isset($_SESSION['maf'])) {
+			$mode = $_SESSION['maf']; //Lee el modo anterior
+			unset($_SESSION['maf']);  //Quita el modo para no ir acumulando.
+		}
+	}
 	//Redirecciona
-	//echo '---'.$mode;	
 	if ($mode=='') {  //No se especifica un modo 
 		//El modo se mantendrá al que estaba en $_SESSION['mode']
 		$mode = $_SESSION['mode'];
@@ -1266,8 +1281,8 @@ function _decodCampoPOST($campo, &$valor, &$campo_nom) {
 	/*Los tipos enumerados no llegan a este nivel. Aparecen como campo de tipo
 	cadena o de otro tipo.
 	if ($campo_tip=='enum') */
-	//Los valores vacíos se consideran como NULL.
-	if ($valor=='') $valor='NULL';
+	//Las cadenas vacías se consideran como NULL.
+	if ($valor==='') $valor='NULL';
 }
 function get_SQL_insert($table) {
 	/* Genera el código SQL de una sentencia INSERT a partir
