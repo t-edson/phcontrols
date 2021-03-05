@@ -168,6 +168,15 @@ function DB_close() {
     //if ($dbResult!=NULL) mysqli_free_result($dbResult);
 	if ($dbConex!=NULL) mysqli_close($dbConex);
 }
+function DB_table_exist(string $tab_name): bool {
+	global $dbConex;
+	if ( mysqli_query($dbConex, "DESCRIBE $tab_name" ) ) {
+	  return true;
+	} else {
+	  return false;
+	}
+	
+}
 //////////////// Mensajes ///////////////////////////////
 function alert($msg, $class) {
 	/* Genera HTML para un mensaje con botón de cerrar. */
@@ -243,12 +252,17 @@ function textbox($name, $default, $nrows, $disabled) {
 	echo '    id="'.$name.'">'. $default;
 	echo '</textarea>';
 }
-function listbox($name, $items, $default, $disabled) {
-	/* Control listbox. Genera una lista desplegable.*/
+function listbox($name, array $items, $default, $disabled) {
+	/* Control listbox. Genera una lista desplegable. Los valores de la lista
+	se obtienen del $items El parámetro $default es el valor que se 
+	seleccionará de la lista. Debe existir en $items (en el atributo value, no
+	en la etiqueta) o no se seleccionará. 
+	Si $default no existe en $items, devolverá FALSE. */
 	echo '    <select class="form-control" ';
 	echo '    name="'.$name.'" ';
 	if ($disabled)	echo ' disabled ';
 	echo '    id="'.$name.'">';
+	$selected = false;  
 	foreach ($items as $txt) {
 		$a = explode("\t", $txt);
 		$value = $a[0];  //Valor.
@@ -256,10 +270,14 @@ function listbox($name, $items, $default, $disabled) {
 		removeQuotes($value); //Siempre se quita comillas
 		removeQuotes($label); //Siempre se quita comillas
 		echo '  <option value="'.$value.'" ';
-		if ($value == $default) echo ' selected ';
+		if ($value == $default) {
+			echo ' selected ';
+			$selected = true;
+		}
 		echo ' >'.$label.'</option>';
 	}
     echo '    </select>';
+	return $selected;
 }
 function abutton($caption, $action, $style="btn-primary") {
 	/* Inserta un botón de estilo indicado en $style, con una acción 
@@ -662,7 +680,7 @@ function table_list($fsql, $hidecols, $buttons) {
 				 <url_botón>|<icono_botón>|<descripcion_icono>|<msj_confirm>
 				El campo <url_botón> puede incluir referencias a campos de la
 				consulta, de modo que se personalicen para cada fila. Ejemplo:
-	   			 www.sitio.com?command=del-user&id={idUsuario}
+	   			 www.sitio.com?command=_del_usu&id={idUsuario}
 	 			El campo "msj_confirm" indica que se debe pedir confirmación
 	 			antes de pulsar el ícono.
 	*/
@@ -1169,8 +1187,8 @@ function create_menu($description, $class) {
 	 Un ejemplo para un menú sería:
  
 		$href_home= ['Inicio', 'www.misitio.com'];
-		$href_cur = ['Cursos', 'www.misitio.com/cur-list'];
-		$href_usu = ['Usuarios', 'www.misitio.com/usu-list'];
+		$href_cur = ['Cursos', 'www.misitio.com/_cur_list'];
+		$href_usu = ['Usuarios', 'www.misitio.com/_usu_list'];
 		create_menu([$href_home, $href_cur, $href_usu], 'menu');
 	*/
 	echo '<ul class="'.$class.'">';
