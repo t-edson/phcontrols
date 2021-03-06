@@ -9,3 +9,5 @@ los valores de los campos BOOLEAN de los formularios, cuand se editan o agregan.
 Se corrigen los comentarios de form_update() y form_insert() que daban información 
 errónea sobre los separadores de las consultas del parámetro $fields.
 Se incluye el archivo "cambios.txt".
+Se agrega una rutina para verificar si una tabla existe.
+Se quita la función redir().

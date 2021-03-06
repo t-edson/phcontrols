@@ -1208,62 +1208,6 @@ function create_menu($description, $class) {
 	echo '</ul>';
 }
 ///////////////// Rutinas back-end ///////////////
-function redir($error='') {
-	/* Genera código de salida del script PHP, con los parámetros indicados.
-	 Esta función realiza las siguientes tarea:
-	 - Genera código de redirección a la página destino. La página destino es
-	 la que misma que llamó a esta página, o a la página indicada en el 
-	 parámetro GET: "dest".
-	 - Devuelve el texto indicado en el parámetro "error", como parámetro GET
-	 al momento de devolver el control a la página destino.
-	 - Devuelve todos los parámetros que se reciben (como GET o POST), como
-	 valores $_SESSION[], al momento de realizar la llamada a la página destino.
-	 - Devuelve el parámetro "mode", como parámetro GET al realizar la llamada
-	 a la página destino. El parámetro "mode" se devuelve de dos formas: Como 
-	 parámetro GET "m", y como valor en $_SESSION[].
-	 */
-	//Lee dirección de retorno
-	$target = $_SERVER['HTTP_REFERER']; //Por defecto es la página de donde vino. Casi siempre index.php.
-	$target = explode('?',$target)[0];  //Quita parámetro GET, por si venía incluido.
-	if ( isset($_GET['dest']) ) $target = $_GET['dest'];  //A menos que se indique este parámetro.
-	//Lee modo de destino
-	if ( isset($_GET['m']) ) $mode = $_GET['m']; 
-	else $mode='';
-	if ($mode=='_ret') {  //Se pide retornar al modo anterior
-		//El modo anterior se lee de $_SESSION['maf']
-		if (isset($_SESSION['maf'])) {
-			$mode = $_SESSION['maf']; //Lee el modo anterior
-			unset($_SESSION['maf']);  //Quita el modo para no ir acumulando.
-		}
-	}
-	//Redirecciona
-	if ($mode=='') {  //No se especifica un modo 
-		//El modo se mantendrá al que estaba en $_SESSION['mode']
-		$mode = $_SESSION['mode'];
-	} else { //Se pide fijar el modo destino
-		//Explora todos los parámetros GET para devolverlos en $_SESSION:
-		foreach($_GET as $campo => $valor){
-			if ($campo=='usuario') continue;  //Protección
-			if ($campo=='rol') continue;	  //Protección
-			//Notar que también puede devolver el "m" y "c".
-			$_SESSION[$campo] = $valor;
-		}
-		//Explora todos los parámetros POST para devolverlos en $_SESSION:
-		foreach($_POST as $campo => $valor){
-			if ($campo=='usuario') continue;  //Protección
-			if ($campo=='rol') continue;	  //Protección
-			$_SESSION[$campo] = $valor;
-		}
-		//Cambia finalmente el modo
-		$_SESSION['mode'] = $mode;
-	}  
-	if ($error=='') {
-		header("location:".$target.'?mod='.$mode);
-	} else {
-		header("location:".$target.'?mod='.$mode.'&e='.$error);
-	}
-	return 0;   //Por si se necesita usarlo como función.
-}
 function _decodCampoPOST($campo, &$valor, &$campo_nom) {
 	/* Obtiene del valor de un control que viene por POST[] de
 	un formulario creado con form_insert(). 
