@@ -35,6 +35,7 @@ The library doesn't force to use a special architecture for the application.
   * DB_exee($sql)
   * DB_read($sql)
   * DB_close()
+  * DB_table_exist(string $tab_name): bool
 
 * Routines to create Messages:
   * alert($msg, $class)
@@ -44,6 +45,23 @@ The library doesn't force to use a special architecture for the application.
   * jumbotron($title, $butlink='', $buttxt='Go back &raquo;')
 
 * Routines to create Controls
+  * label($caption, $for)
+  * editbox($id, $default, $disabled)
+  * passbox($id, $default, $disabled)
+  * textbox($name, $default, $nrows, $disabled)
+  * listbox($name, array $items, $default, $disabled)
+  * abutton($caption, $action, $style="btn-primary")
+  * hbutton($caption, $href, $style="btn-primary")
+  * abutton_add($caption, $action)
+  * hbutton_add($caption, $action)
+  * abutton_save($caption, $action)
+  * button_submit($caption)
+  * link_inline($caption, $href)
+  * link_block($caption, $href)
+  * form_post($action, $class='')
+  * end_form_post()
+
+* Routines to create Controls for Database
   * control_edit($caption, $field_name, $default, $class='')
   * control_text($caption, $field_name, $default, $class='')
   * control_password($caption, $field_name, $default, $class='')
@@ -52,9 +70,6 @@ The library doesn't force to use a special architecture for the application.
   * control_time($caption, $field_name, $default, $class='')
   * control_switch($caption, $field_name, $default, $class='')
   * control_listbox($caption, $field_name, $items, $default, $class='')
-  * button_add($caption, $action)
-  * button_save($caption, $action)
-  * button_submit($caption)
 
 * Routines to create Frames
   * startBlock($title, $title_buttons=[], $class='')
@@ -69,7 +84,6 @@ The library doesn't force to use a special architecture for the application.
   * create_menu($description, $class)
 
 * Routines for back-end
-  * redir($error='')
   * get_SQL_insert($table)
   * get_SQL_update($table, $cond_reg)
   * read_col_POST($col_name)
@@ -84,7 +98,6 @@ Databases must be created according to the following rules:
 
  - Tables must have a primary key, if the table is going to be edited by the functions of the library.
  - Boolean columns must be represented as Tinyint type, because functions, that edits tables, work in that way.
- - Boolean columns must have a default value of FALSE to avoid generates NULL values.
  - Password columns must be defined as CHAR data types in order to be shown correctly.
 
 # Installation

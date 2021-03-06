@@ -14,7 +14,7 @@
    valor 0, para evitar que se ingresen valores NULL.
  - Los campos de contraseña, se representarán como campos de tipo
    CHAR, para que se muestren correctamente en los formularios.
- - Los campos que alamcenen cadenas de varias líneas deben tener
+ - Los campos que almacenen cadenas de varias líneas deben tener
    el tipo TEXT, para que se representen como cuadro de texto de 
    Varias líneas.
 
