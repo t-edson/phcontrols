@@ -92,13 +92,158 @@ The library doesn't force to use a special architecture for the application.
 
 Only MySQL databases are supported. 
 
-The database can be relational or not. 
+The library facilitates the connection to the database and the querys execution through several functions.
 
-Databases must be created according to the following rules:
+First of all, the connection parameters initialization must be done using DB_set_mysql():
+
+```
+DB_set_mysql('localhost', 'user', 'password', 'my_database_name');
+```
+
+This instruction set some internal variables to allow open the database connection:
+
+```
+DB_open();
+```
+
+No parameters are needed because, they were set before with DB_set_mysql().
+
+After the database was opened, we can send SQL queries using one of the following functions:
+
+```
+function DB_exec($sql)
+function DB_exee($sql)
+function DB_read($sql)
+```
+
+DB_exec() and DB_exee() are used when te result is expected to have many rows. DB_read() is used to retrieve just one row as result.
+
+After calling to DB_exec() and DB_exee(), some variables are initiated:
+
+$dbResult -> The mysqli_result object for the query. Used to iterate.
+$dbRowNum -> The number of rows returned for the query.
+$dbError  -> The error message text. Empty string if no error was produced.
+
+A sample code to launch a SQL query and iterate the result cpuld be:
+
+```
+	DB_set_mysql('localhost', 'user', 'password', 'my_database_name');
+	DB_open();
+	DB_exec("SELECT FROM table");
+	if ($dbError!='') {echo $dbError;}
+		//Iterate result
+		while ($row = mysqli_fetch_assoc($dbResult)){
+			$id = $row['id'];
+			//...
+	}
+```
+
+The result for DB_exec() is false when a error is produced. So we don't need to check $dbError to detect some error, we can use:
+
+```
+	if (DB_exec($sql) ) {  //OK
+
+	} else {	//Some problem
+
+	};
+```
+
+The function DB_exee() is similar to DB_exec() but, if error is produced, the error message is written to output using "echo" instructions.
+
+Db_read() only returns the first record of the result.
+
+```
+	$reg = DB_read("SELECT title, value FROM some_table WHERE id=123"); 
+	$title   = $reg['title'];
+	$value   = $reg['value'];
+```
+
+# Database viewing and editing
+
+phControls makes easy the database table viewing and editing.
+
+Table viewing is done using three main functions:
+
+* table_list($fsql, $hidecols, $buttons)
+
+* form_insert($table, $fields, $hins, $hret, $msj_agre)
+
+* form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg)
+
+In order to have a correct viewing, databases must be created according to the following rules:
 
  - Tables must have a primary key, if the table is going to be edited by the functions of the library.
  - Boolean columns must be represented as Tinyint type, because functions, that edits tables, work in that way.
  - Password columns must be defined as CHAR data types in order to be shown correctly.
+ - Columns for storing multi-line text must be declared as TEXT datatype, in order to be shown as a multiline text input.
+
+
+# table_list()
+
+Generates the HTML of a table that represents the content of a table in the database or the result of a SQL query. 
+
+DB_open() must have been called first.
+
+A simple way to use is:
+
+```
+	$fsql = "SELECT idUsuario, nombres, idPerfil, horarios FROM usuarios";
+	table_list($fsql, 0, []);
+```
+Information is shown if table format:
+
+![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample2.png?raw=true)
+
+The definition is: 
+
+table_list($fsql, $hidecols, $buttons)
+ 
+PARAMETER $fsql
+
+Is the SQL query used to obtain the rows to show. The query must be of the form:
+	
+	SELECT field1, field2 FROM table WHERE ...
+	
+You can also use: 
+
+	SELECT * FROM table ...
+	
+All the indicated fields will be displayed in the HTML table.
+
+To change the name of the column to display, you can use the renaming using SQL:
+
+	SELECT field1 as NAME, field2 as AGE, ...
+
+PARAMETER $hidecols
+
+Number of columns in the query to hide. The columns to hide will always be the first. The possibility of hiding columns allows necessary fields to be included in the SELECT (such as the PK of the table that may be needed for the $buttons parameter), which are not shown in the list.
+
+PARAMETER $buttons 
+
+Array defining buttons to implement actions applied to the rows.
+
+Parameter $buttons define the buttons to be placed in the last column. It's an array containing strings of the form:
+				<action_url>|<button_icon>|<icon_description>|<msg_confirm>
+				
+The field <action_url> can include references to columns of the query, so that they can be  customized for each row. Example:
+	   			www.site.com?command=_dosomething&id={id_row_name}
+
+In this case, variable {id_row_name} will be replaced for the column "id_row_name" that should be part of the columns selected in the SQL query. That means it's necessary to include a Primary Key in the query if we are going to include action buttons. If we don't want to show the Primary key in the table, we can put it in the first position and then hide this column.
+
+Teh field "msj_confirm" indicates that confirmation should be requested
+before pressing the icon. It's useful when action is going to delete some row of the table.
+
+An example of code, using buttons is:
+
+```
+	$fsql = "SELECT idPlan, name, description FROM plan_evaluac";
+	$hedi = 'edit_page.php&id={idPlan}|pencil.png|Edit';
+	$hdel = 'delete_page.php&id={idPlan}|bin.png|Delete|¿Delete item?';
+	table_list($fsql, 0, [$hedi, $hdel]);
+```
+
+If the query returns more than 20 rows, not all the rows will be shown at the same time. A pagination, control will be appearing at the end of the table to select a specific page.
+
 
 # Installation
 

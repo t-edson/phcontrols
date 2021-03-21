@@ -21,8 +21,6 @@
 				Por Tito Hinostroza 2020 - Derechos Reservados
 */
 ////////// Íconos usados
-//$ICO_TRASH  = '<img src="'.HWEB.'/_images/bin.png" alt="trash icon">';
-//$ICO_UPDATE = '<img src="'.HWEB.'/_images/spinner11.png" alt="update icon">';
 	$ICO_TRASH  = '<img src="'.__DIR__.'/bin.png" alt="trash icon">';
 	$ICO_UPDATE = '<img src="'.__DIR__.'/spinner11.png" alt="update icon">';
 ////////// Variables globales de base de datos //////////////
@@ -595,13 +593,13 @@ function _item_bloque($name, $img, $id, $hsel, $draggable=true) {
 	echo '  </div>';
 	echo '</button>';
 }
-function block_table_icons($title, $icon, $tabla, 
+function block_table_icons($title, $icon, $table,
 			$col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel) {
 	/* Genera el HTML de una lista de bloques, a partir de registros
 	  de una tabla de la base de datos. Se debe haber llamado primero 
 	  a DB_open(). 
 	  Parámetros:
-	    $tabla -> Nombre de la tabla de la base de datos.
+	    $table -> Nombre de la tabla de la base de datos.
 	    $col_id -> Columna de la tabla que se usará como clave primaria.
 	    $col_txt -> Columna de la tabla que se usará como etiqueta del ícono.
 	    $msj_agre -> Mensaje que aparece en el ícono de "Agregar".
@@ -611,7 +609,7 @@ function block_table_icons($title, $icon, $tabla,
 	*/
 	global $dbRowNum, $dbResult;
 	global $ICO_TRASH, $ICO_UPDATE;
-	DB_exec("SELECT * FROM $tabla ORDER BY $col_id");
+	DB_exec("SELECT * FROM $table ORDER BY $col_id");
 	//Convierte ícono en destino "soltable" para el arrastre.
 	$ico_drop = str_replace('<img', 
 	  '<img ondragover="event.preventDefault()"
@@ -636,7 +634,7 @@ function block_table_icons($title, $icon, $tabla,
 	  }
 	}
 	//Agrega botón "Agregar ..."
-//	_item_bloque($msj_agre,'/images/add64.png', '', $hadd, false);
+	//_item_bloque($msj_agre,'/images/add64.png', '', $hadd, false);
 	_item_bloque($msj_agre, __DIR__ .'add64.png', '', $hadd, false);
 	endBlock();
 	//Agrega rutinas Javascript
@@ -657,7 +655,7 @@ function block_table_icons($title, $icon, $tabla,
 	');
 }
 function table_list($fsql, $hidecols, $buttons) {
-	/* Genera el HTML de una tabla HTML que representa los registros
+	/* Genera el HTML de una tabla que representa los registros
 	 de una tabla de la base de datos. Se debe haber llamado primero 
 	 a DB_open(). 
 	 Parámetros:
@@ -687,16 +685,23 @@ function table_list($fsql, $hidecols, $buttons) {
 	global $dbRowNum, $dbResult, $dbConex;
 	global $ICO_TRASH, $ICO_UPDATE;
 	$autonum = true;
-	if ($result = mysqli_query($dbConex, $fsql)) {
-		// Hay filas de datos.
+	if ($result = mysqli_query($dbConex, $fsql)) { // Hay filas de datos.
+		//Prepara paginación de datos
+		$page = mode_param('tl_page');
+		if ($page=='') $page = 1;
+		$results_per_page = 20;
+		$page_first_result = ($page-1) * $results_per_page;
+		$rownum = mysqli_num_rows($result);
+		$number_of_page = ceil($rownum / $results_per_page);
+		if ($number_of_page>1) {  //Hay paginación
+			//Nueva consulta con límites.
+			$result = mysqli_query($dbConex, $fsql.
+			  ' LIMIT '.$page_first_result.','.$results_per_page); 
+		}
+		//Crea tabla
 		echo '<table class="table_list">';
 		// Lee información de las columnas del resultado.
 		$fieldinfo = mysqli_fetch_fields($result);
-		//foreach ($fieldinfo as $val) {
-		//  echo "Name: ". $val->name;
-		//  echo "Type: ". $val->type;
-		//  echo "Max. Len: ". $val->max_length. '<br>';
-		//}
 		//Genera encabezado
 		echo '<tr>';
 		if ($autonum) echo '  <th>#</th>'; //Columna de numeración
@@ -711,7 +716,7 @@ function table_list($fsql, $hidecols, $buttons) {
 		if (sizeof($buttons)>0) echo '  <th>Acciones</th>'; //Columna de acciones
 		echo "</tr>\n"; 
 		//Genera filas
-		$nrow = 0;
+		$nrow = $page_first_result;
 		while ($fila = mysqli_fetch_assoc($result)) {
 			$nrow++;
 			echo '<tr>';
@@ -750,6 +755,36 @@ function table_list($fsql, $hidecols, $buttons) {
 		}
 		//Cierra tabla
 	  	echo '</table>';
+		//Acceso a las páginas
+		if ($number_of_page>1) {  //Hay paginación
+			echo '<br>';
+			echo '<div class="page_sel">';
+			//Botón <<
+			if ($page>1) {
+				$href = hgo_curmod('add2mod&tl_page='.($page-1));  //Agrega parámetro de página al modo.
+				echo '<a class="but" href="'.$href.'"> < </a>';
+			} else {
+				echo '<a class="but" href="#"> < </a>';
+			}
+			//Botones centrales
+			for($pag = 1; $pag<= $number_of_page; $pag++) {  
+				if ($pag==$page) {  //Página actual
+					$href = hgo_curmod('add2mod&tl_page='.$pag);  //Agrega parámetro de página al modo.
+					echo '<a class="butsel" href="'.$href.'">'.$pag.' </a>';
+				} else {
+					$href = hgo_curmod('add2mod&tl_page='.$pag);  //Agrega parámetro de página al modo.
+					echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
+				}
+			}
+			//Botón >>
+			if ($page<$number_of_page) {
+				$href = hgo_curmod('add2mod&tl_page='.($page+1));  //Agrega parámetro de página al modo.
+				echo '<a class="but" href="'.$href.'"> > </a>';
+			} else {
+				echo '<a class="but" href="#"> > </a>';
+			}
+			echo '</div>';
+		}
 	} else {
 		//No hay información.
 	}

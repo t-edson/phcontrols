@@ -1,3 +1,8 @@
+0.3
+===
+Se agrega paginación a las tablas mostradas con table_list().
+Se agrega información sobre table_list() al README.md.
+
 0.2
 ===
 Se crea la carpeta /_screens y se mueven allí las capturas de pantalla.

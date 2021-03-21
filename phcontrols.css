@@ -462,6 +462,19 @@
   background-color: #f2f2f2;
 }
 
+.page_sel .but {
+  padding: 0.3rem;
+  border: 1px solid #ccc;
+  color: #337ab7;
+}
+
+.page_sel .butsel {
+  padding: 0.3rem;
+  border: 1px solid #ccc;
+  background-color: #337ab7;
+  color: white;
+}
+
 .form_insert .control-field {
   margin-bottom: 0.8rem;
 }
@@ -473,4 +486,3 @@
   -ms-flex-pack: distribute;
       justify-content: space-around;
 }
-/*# sourceMappingURL=phcontrols.css.map */

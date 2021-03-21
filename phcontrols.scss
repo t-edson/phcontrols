@@ -380,6 +380,20 @@ $col_panel  : #e0e0e0;
     //Sombreado intercalado
     tr:nth-child(even) {background-color: #f2f2f2;}
 }    
+//Estilo para botones de paginación
+.page_sel {
+  .but {   //Botón común
+    padding: 0.3rem;
+    border: 1px solid $col_border;
+    color: $col_button;
+  }
+  .butsel { //Botón actual
+    padding: 0.3rem;
+    border: 1px solid $col_border;
+    background-color: $col_button;
+    color: white;
+  }
+}
 //Estilo para formulario generado con form_insert()
 .form_insert {
   .control-field {margin-bottom: 0.8rem;}
