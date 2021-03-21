@@ -244,6 +244,8 @@ An example of code, using buttons is:
 
 If the query returns more than 20 rows, not all the rows will be shown at the same time. A pagination, control will be appearing at the end of the table to select a specific page.
 
+![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/table_pag.png?raw=true)
+
 
 # Installation
 
