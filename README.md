@@ -92,7 +92,7 @@ The library doesn't force to use a special architecture for the application.
 
 Only MySQL databases are supported. 
 
-The library facilitates the connection to the database and the querys execution through several functions.
+The library facilitates the connection to the database and the queries execution through several functions.
 
 First of all, the connection parameters initialization must be done using DB_set_mysql():
 
