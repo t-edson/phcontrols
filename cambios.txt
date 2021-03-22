@@ -4,6 +4,8 @@ Se agrega el parámetro $autonum a table_list().
 Se agrega capacidad de paginación a las tablas mostradas con table_list().
 Se agrega la función pagination_links() para crear los botones de paginación.
 Se agrega información sobre table_list() al README.md.
+Se cambia de nombre a _item_bloque() por item_block() y se agrega un nuevo 
+parámetro.
 
 0.2
 ===

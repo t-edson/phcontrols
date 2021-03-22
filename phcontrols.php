@@ -557,29 +557,31 @@ function block_separatorh() {
 	echo '<div class="block_seph"></div>';
 }
 ///////////////// Rutinas front-end /////////////////
-function _item_bloque($name, $img, $id, $hsel, $draggable=true) {
-	/* Genera HTML para un ítem a dibujarse en forma de bloque 
-	  cuadrado. 
+function item_block($name, $img, $id, $action, $hsel, $draggable=true) {
+	/* Genera HTML para un ítem a dibujarse en forma de bloque cuadrado, que
+	 se alinea primero horizontalmente y luego en filas.
 	  Parámetros:
-		$nombre -> Título que aparece en el ítem.
-		$img    -> Ruta de Imagen o caracter a mostrar.
-		$id     -> Identificador único del ítem. Debería corresponder 
-				   al PK en la base de datos.
-		$hsel   -> Enlace a donde se dirigirá cuando se haga click en
-				   el ítem.
+		$nombre -> 	Título que aparece en el ítem.
+		$img    -> 	Ruta de Imagen o caracter a mostrar.
+		$id     -> 	Identificador único del ítem. Debería corresponder 
+				   	al PK en la base de datos.
+		$action -> 	Acción a ejecutar. Es el código a usar en el evento 
+				   	onclick(). No debe contener comillas dobles sin escapar.
+		$hsel   -> 	Enlace a donde se dirigirá cuando se haga click en el 
+					ítem. Solo se usa si no se especificó $action. 
 	*/
 	/*El <button> será el contenedor principal que representará
 	al botón. A este botón se le dará comportamiento INLINE-BLOCK
 	para que los botones se distribuyan horizontalmente.*/
+	if ($action=='') $action='location.href=\''.$hsel.'\'';
 	if ($draggable) {
-		echo '<button class="item_bloque panel"
-		id="'.$id.'" 
-		onclick="location.href=\''.$hsel.'\'"
-		draggable="true" ondragstart="dragBTI(event)">';
+		echo '<button class="item_bloque panel" id="'.$id.'" ';
+		echo 'onclick="'.$action.'" ';
+		echo 'draggable="true" ondragstart="dragBTI(event)">';
 	} else {
-		echo '<button class="item_bloque panel"
-		onclick="location.href=\''.$hsel.'\'"
-		draggable="false" >';
+		echo '<button class="item_bloque panel" ';
+		echo 'onclick="'.$action.'" ';
+		echo 'draggable="false" >';
 	}
 	/*Este <div> será el contenedor secundario para darle 
 	display: FLEX y definir el alineamiento de los elemenos que contiene.*/
@@ -587,7 +589,7 @@ function _item_bloque($name, $img, $id, $hsel, $draggable=true) {
 	/* Elemento para agrupar la imagen y el texto */
 	echo '  <span>';
 	//Desactiva "draggable" del <img> (activo por defecto) para que no interfiera.
-	echo '    <img draggable="false" src="'.HWEB.$img.'" />';
+	echo '    <img draggable="false" src="'.$img.'" />';
 	echo      $name;
 	echo '  </span>';
 	echo '  </div>';
@@ -630,12 +632,11 @@ function block_table_icons($title, $icon, $table,
 		$nombre = $fila[$col_txt];  //Columna con el texto a mostrar en el ícono
 		//$hsel = $hsel.'&id='.$id_inst;  //Completa con información del ID
 		$h = str_replace('{id}', $id_inst, $hsel);
-		_item_bloque($nombre, $icon, $id_inst, $h);
+		item_block($nombre, $icon, $id_inst, '', $h);
 	  }
 	}
 	//Agrega botón "Agregar ..."
-	//_item_bloque($msj_agre,'/images/add64.png', '', $hadd, false);
-	_item_bloque($msj_agre, __DIR__ .'add64.png', '', $hadd, false);
+	item_block($msj_agre, __DIR__ .'add64.png', '', '', $hadd, false);
 	endBlock();
 	//Agrega rutinas Javascript
 	//Rutina para drag-drop. Basada en: https://www.w3schools.com/html/tryit.asp?filename=tryhtml5_draganddrop 

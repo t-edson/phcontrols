@@ -77,7 +77,9 @@ The library doesn't force to use a special architecture for the application.
   * block_separatorh()
 
 * Routines for front-end
+  * item_block($name, $img, $id, $action, $hsel, $draggable=true)
   * block_table_icons($title, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
+  * pagination_links($n_pages, $page, $f_href)
   * table_list($fsql, $hidecols, $buttons)
   * form_insert($table, $fields, $hins, $msj_agre)
   * form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
