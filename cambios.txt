@@ -1,6 +1,8 @@
 0.3
 ===
-Se agrega paginación a las tablas mostradas con table_list().
+Se agrega el parámetro $autonum a table_list().
+Se agrega capacidad de paginación a las tablas mostradas con table_list().
+Se agrega la función pagination_links() para crear los botones de paginación.
 Se agrega información sobre table_list() al README.md.
 
 0.2

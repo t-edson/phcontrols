@@ -164,7 +164,7 @@ phControls makes easy the database table viewing and editing.
 
 Table viewing is done using three main functions:
 
-* table_list($fsql, $hidecols, $buttons)
+* table_list($fsql, $hidecols, $buttons, $autonum, $page, $page_size)
 
 * form_insert($table, $fields, $hins, $hret, $msj_agre)
 
@@ -190,14 +190,17 @@ A simple way to use is:
 	$fsql = "SELECT idUsuario, nombres, idPerfil, horarios FROM usuarios";
 	table_list($fsql, 0, []);
 ```
-Information is shown if table format:
+
+Information is shown in table format:
 
 ![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample2.png?raw=true)
 
 The definition is: 
 
-table_list($fsql, $hidecols, $buttons)
- 
+table_list($fsql, $hidecols, $buttons, $autonum = true, int $page=0, int $page_size=20)
+
+When pagination is activated, the function returns the number of pages needed to display all the rows of he query. When pagination is disabled, always returns 1.
+
 PARAMETER $fsql
 
 Is the SQL query used to obtain the rows to show. The query must be of the form:
@@ -242,7 +245,28 @@ An example of code, using buttons is:
 	table_list($fsql, 0, [$hedi, $hdel]);
 ```
 
-If the query returns more than 20 rows, not all the rows will be shown at the same time. A pagination, control will be appearing at the end of the table to select a specific page.
+PARAMETER $autonum
+
+Activate o deactivate the numeration of rows. When activated, a new column is added at the beginning of the table, containing the number of row.
+
+PARAMETER $page
+
+Page number to display. When it takes a value greater than zero, pagination will be used in the table, and a maximum of the number of rows indicated in the $ page_size parameter will be displayed.
+
+PARAMETER $page_size
+
+It is the maximum number of rows displayed when using pagination, that is, when $page>0. When $page_size is greater than the number of rows in the result, pagination is disabled.
+
+When pagination is used, it's possible to show a list of buttons to navigate in the pages of the result. To do this, we use the function: pagination_links().
+
+An example of using table_list() with pagination is:
+
+```
+	$page = $_GET['pag'];   //Could be 1, 2 or 3
+	$n_pages = table_list($fsql, 0, [], true, $page, 5);
+	pagination_links($n_pages, $page, 
+		function($p) {return 'index.php&pag='.$p);} );
+```
 
 ![sample page](https://github.com/t-edson/phcontrols/blob/0.3/_screens/table_pag.png?raw=true)
 

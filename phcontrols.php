@@ -654,7 +654,47 @@ function block_table_icons($title, $icon, $table,
 	  }	
 	');
 }
-function table_list($fsql, $hidecols, $buttons) {
+function pagination_links($n_pages, $page, $f_href){
+	/* Crea una barra horizontal con enlaces de tipo: 1,2,3 ... usado para
+	cambiar la página de algún control que se muestre por páginas. 
+	$n_pages->	Número de páginas a mostrar.	
+	$page	->	Página actual mostrada.
+	$f_href ->	Función que se usará para obtener la URL a poner en el botón.
+				Debe tener un parámetro que es donde recibirá el número de
+				página.
+	*/
+	if ($n_pages<=1) return;
+	//Hay paginación
+	echo '<br>';
+	echo '<div class="page_sel">';
+	//Botón <<
+	if ($page>1) {
+		$href = $f_href($page-1); 
+		echo '<a class="but" href="'.$href.'"> < </a>';
+	} else {
+		echo '<a class="but" href="#"> < </a>';
+	}
+	//Botones centrales
+	for($pag = 1; $pag<= $n_pages; $pag++) {  
+		if ($pag==$page) {  //Página actual
+			$href = $f_href($pag);
+			echo '<a class="butsel" href="'.$href.'">'.$pag.' </a>';
+		} else {
+			$href = $f_href($pag);
+			echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
+		}
+	}
+	//Botón >>
+	if ($page<$n_pages) {
+		$href = $f_href($page+1);
+		echo '<a class="but" href="'.$href.'"> > </a>';
+	} else {
+		echo '<a class="but" href="#"> > </a>';
+	}
+	echo '</div>';
+}
+function table_list($fsql, $hidecols, $buttons, $autonum = true, 
+					int $page=0, int $page_size=20) {
 	/* Genera el HTML de una tabla que representa los registros
 	 de una tabla de la base de datos. Se debe haber llamado primero 
 	 a DB_open(). 
@@ -681,22 +721,33 @@ function table_list($fsql, $hidecols, $buttons) {
 	   			 www.sitio.com?command=_del_usu&id={idUsuario}
 	 			El campo "msj_confirm" indica que se debe pedir confirmación
 	 			antes de pulsar el ícono.
+	 $autonum-> Bandera booleana que indica si se incluye una columna con el 
+				número de fila mostrada.
+	 $page	 -> Número de página a mostrar. Cuando toma un valor mayor a cero,
+				se usará paginación, y se mostrarán como máximo, la cantidad de
+				filas indicadas en el parámetro $page_size.
+	 $page_size->Es el número de filas mostradas como máximo cuando se usa 
+				paginación, es decir, cuando $page>0. Cuando $page_size es 
+				mayor el el número de filas del resultado, se desactiva la 
+				paginación.
+
+	 Devuelve en número de páginas mostradas, cuando se usa paginación.
 	*/
 	global $dbRowNum, $dbResult, $dbConex;
-	global $ICO_TRASH, $ICO_UPDATE;
-	$autonum = true;
 	if ($result = mysqli_query($dbConex, $fsql)) { // Hay filas de datos.
-		//Prepara paginación de datos
-		$page = mode_param('tl_page');
-		if ($page=='') $page = 1;
-		$results_per_page = 20;
-		$page_first_result = ($page-1) * $results_per_page;
-		$rownum = mysqli_num_rows($result);
-		$number_of_page = ceil($rownum / $results_per_page);
-		if ($number_of_page>1) {  //Hay paginación
-			//Nueva consulta con límites.
-			$result = mysqli_query($dbConex, $fsql.
-			  ' LIMIT '.$page_first_result.','.$results_per_page); 
+		if ($page==0) {	//No se aplica paginación
+			$page_first_result = 0;
+			$n_pages = 1;
+		} else { //Se pide paginar
+			//Prepara paginación de datos
+			$page_first_result = ($page-1) * $page_size;
+			$rownum = mysqli_num_rows($result);
+			$n_pages = ceil($rownum / $page_size);
+			if ($n_pages>1) {  //Hay paginación
+				//Nueva consulta con límites.
+				$result = mysqli_query($dbConex, $fsql.
+				' LIMIT '.$page_first_result.','.$page_size); 
+			}
 		}
 		//Crea tabla
 		echo '<table class="table_list">';
@@ -755,39 +806,10 @@ function table_list($fsql, $hidecols, $buttons) {
 		}
 		//Cierra tabla
 	  	echo '</table>';
-		//Acceso a las páginas
-		if ($number_of_page>1) {  //Hay paginación
-			echo '<br>';
-			echo '<div class="page_sel">';
-			//Botón <<
-			if ($page>1) {
-				$href = hgo_curmod('add2mod&tl_page='.($page-1));  //Agrega parámetro de página al modo.
-				echo '<a class="but" href="'.$href.'"> < </a>';
-			} else {
-				echo '<a class="but" href="#"> < </a>';
-			}
-			//Botones centrales
-			for($pag = 1; $pag<= $number_of_page; $pag++) {  
-				if ($pag==$page) {  //Página actual
-					$href = hgo_curmod('add2mod&tl_page='.$pag);  //Agrega parámetro de página al modo.
-					echo '<a class="butsel" href="'.$href.'">'.$pag.' </a>';
-				} else {
-					$href = hgo_curmod('add2mod&tl_page='.$pag);  //Agrega parámetro de página al modo.
-					echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
-				}
-			}
-			//Botón >>
-			if ($page<$number_of_page) {
-				$href = hgo_curmod('add2mod&tl_page='.($page+1));  //Agrega parámetro de página al modo.
-				echo '<a class="but" href="'.$href.'"> > </a>';
-			} else {
-				echo '<a class="but" href="#"> > </a>';
-			}
-			echo '</div>';
-		}
 	} else {
 		//No hay información.
 	}
+	return $n_pages;
 }
 function _decode_row($row, &$field, &$type_nam, &$type_arg, &$default, &$extra, &$null) {
 	/* Decodifica una fila de DESCRIBE table_name. Función para
