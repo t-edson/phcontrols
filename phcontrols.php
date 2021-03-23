@@ -574,13 +574,10 @@ function item_block($name, $img, $id, $action, $hsel, $draggable=true) {
 	al botón. A este botón se le dará comportamiento INLINE-BLOCK
 	para que los botones se distribuyan horizontalmente.*/
 	if ($action=='') $action='location.href=\''.$hsel.'\'';
+	echo '<button class="item_bloque panel" onclick="'.$action.'" ';
 	if ($draggable) {
-		echo '<button class="item_bloque panel" id="'.$id.'" ';
-		echo 'onclick="'.$action.'" ';
-		echo 'draggable="true" ondragstart="dragBTI(event)">';
+		echo 'draggable="true"  id="'.$id.'" ondragstart="dragBTI(event)">';
 	} else {
-		echo '<button class="item_bloque panel" ';
-		echo 'onclick="'.$action.'" ';
 		echo 'draggable="false" >';
 	}
 	/*Este <div> será el contenedor secundario para darle 
@@ -1155,11 +1152,11 @@ function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 	while($row = mysqli_fetch_array($q)) {
 		$cols[] = $row; //Acumula en el arreglo.
 	}
+	echo '<form class="form_insert" action="'.$hupd.'" method="post" >';
 	//Consulta para acceder al registro a editar
 	$q = mysqli_query($dbConex, "select * from $table where $cond_reg");
 	if ($row = mysqli_fetch_array($q)) {
 		//En $row[] tenemos el resultado. Solo una fila.
-		echo '<form class="form_insert" action="'.$hupd.'" method="post" >';
 		$ids = [];   //Inicia arreglo
 		foreach($fields as $item) {  //Explora las columna indicadas
 			/* Se espera que el formato de $item sea:
@@ -1178,18 +1175,19 @@ function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 			$ids[] =  $in_id;  //Devuelve índice 
 		}
 
-		if ($hret=='') {  //Botón único
-			button_submit($msj_agre);
-		} else {  //Con botón "Volver"
-			echo '<div class="buttons">';
-			button_submit($msj_agre);
-			hbutton('<< Volver', $hret);
-			echo '</div>';
-		} 
-		echo '</form>';
 	} else {
 		//No hay resultados.
 	}
+	if ($hret=='') {  //Botón único
+		button_submit($msj_agre);
+	} else {  //Con botón "Volver"
+		echo '<div class="buttons">';
+		button_submit($msj_agre);
+		hbutton('<< Volver', $hret);
+		echo '</div>';
+	} 
+	echo '</form>';
+
 	/*Genera código javascript para validación de datos obligatorios.
 	La función devuelve TRUE si el campo no es válido. */
 

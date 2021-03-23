@@ -6,6 +6,7 @@ Se agrega la función pagination_links() para crear los botones de paginación.
 Se agrega información sobre table_list() al README.md.
 Se cambia de nombre a _item_bloque() por item_block() y se agrega un nuevo 
 parámetro.
+Se reordena el código de form_update(), para uniformizar con form_insert().
 
 0.2
 ===
