@@ -462,6 +462,14 @@
   background-color: #f2f2f2;
 }
 
+.hor_buttons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+}
+
 .page_sel .but {
   padding: 0.3rem;
   border: 1px solid #ccc;
@@ -475,14 +483,13 @@
   color: white;
 }
 
-.form_insert .control-field {
-  margin-bottom: 0.8rem;
+.form_insert {
+  /*  .buttons {  //Si es que hay dos botones
+    display: flex;
+    justify-content: space-around;
+  }*/
 }
 
-.form_insert .buttons {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-pack: distribute;
-      justify-content: space-around;
+.form_insert .control-field {
+  margin-bottom: 0.8rem;
 }

@@ -1065,7 +1065,7 @@ function form_insert($table, $fields, $hins, $hret, $msj_agre){
 	if ($hret=='') {  //Botón único
 		button_submit($msj_agre);
 	} else {  //Con botón "Volver"
-		echo '<div class="buttons">';
+		echo '<div class="hor_buttons">';
 		button_submit($msj_agre);
 		hbutton('<< Volver', $hret);
 		echo '</div>';
@@ -1181,7 +1181,7 @@ function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 	if ($hret=='') {  //Botón único
 		button_submit($msj_agre);
 	} else {  //Con botón "Volver"
-		echo '<div class="buttons">';
+		echo '<div class="hor_buttons">';
 		button_submit($msj_agre);
 		hbutton('<< Volver', $hret);
 		echo '</div>';
