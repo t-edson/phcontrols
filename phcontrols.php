@@ -250,6 +250,25 @@ function textbox($name, $default, $nrows, $disabled) {
 	echo '    id="'.$name.'">'. $default;
 	echo '</textarea>';
 }
+function cswitch($name, $default, $disabled) {
+	echo '<label class="switch">';
+	/*Control <input> oculto adicional, para que el requerimiento POST envíe
+	información cuando el checkbox siguiente esté en falso (De otra forma no
+	se envía por POST). */
+	echo '    <input type="hidden" value="0" name="'.$name.'">';
+	//Control "checkbox" principal.
+	if ($default == 1) {
+		echo '  <input type="checkbox" name="'.$name.'" checked ';
+		if ($disabled)	echo ' disabled ';
+		echo '    id="'.$name.'">';
+	} else {
+		echo '  <input type="checkbox" name="'.$name.'" ';
+		if ($disabled)	echo ' disabled ';
+		echo '    id="'.$name.'">';
+	}
+	echo '  	<span class="slider"></span>';
+	echo '</label>';
+}
 function listbox($name, array $items, $default, $disabled) {
 	/* Control listbox. Genera una lista desplegable. Los valores de la lista
 	se obtienen del $items El parámetro $default es el valor que se 
@@ -450,14 +469,16 @@ function control_switch($caption, $field_name, $default, $class='') {
 	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
 	 control <input>. */
 	if ( substr($caption, -1)=='*' ) {$caption = substr($caption, 0, -1).'<strong>&nbsp;*</strong>';}
+	$disabled = ($class=='cnt-disabled')? true : false;
 	echo '<div class="control-field '.$class.'">';
 	// Etiqueta
 	echo '  <label class="label" for="'.$field_name.'">'.$caption.'</label><br>';
 	// Control
 	echo '  <div class="control">';
-	echo '    <label class="switch">';
-	/*Control oculto adicional para que el requerimiento POST envíe información
-	 cuando el checkbox siguiente esté en falso (De otra forma no se envía por POST).*/
+	cswitch($field_name, $default, $disabled);
+	/*echo '    <label class="switch">';
+	//Control oculto adicional para que el requerimiento POST envíe información
+	//cuando el checkbox siguiente esté en falso (De otra forma no se envía por POST).
 	echo '  <input type="hidden" value="0" name="'.$field_name.'">';
 	//Control "checkbox" principal.
 	if ($default == 1) {
@@ -470,7 +491,8 @@ function control_switch($caption, $field_name, $default, $class='') {
 		echo '    id="'.$field_name.'">';
 	}
 	echo '  	<span class="slider"></span>';
-	echo '    </label>';
+	echo '    </label>';*/
+	
 	echo '  </div>';
 	//Campo para el mensaje de error
 	echo '  <div class="msg">';
@@ -988,39 +1010,13 @@ function _gen_control_columns($cols, $column, $etiq, $subq, $valini, &$in_id,
 	}
 	if (!$found) alert_danger('Column not found: '.$column);
 }
-function form_insert($table, $fields, $hins, $hret, $msj_agre){
-	/* Genera HTML de un formulario para agregar registros a una tabla. Un 
-	 formulario, de este tipo, aparece con sus campos en blanco o con los
-	 valores por defecto, que se hayan definido en la creación de la tabla.
+function _start_form(string $table, array &$cols, string $href, $idf='') {
+	/* Rutina de inicio de los formularios usados con form_insert() y form_update(). 
 	 Parámetros:
-	 $table  -> Tabla a editar.
-	 $fields -> Arreglo de campos que se desean editar. Debe tener la forma:
-					$fields = ['idReg|ID','Nombre', 'direccion|Dirección'];
-				El formato completo de los ítems de $fields[] es:
-					<nombre_colum>|<etiqueta>|<Subconsulta>|<valor_inic>
-				El valor <nombre_colum> es el nombre de la columna, de $table,
-				que se usará para este campo.
-				Si no se indica <etiqueta>, se usará <nombre_colum> en su lugar.
-				<Subconsulta> es la consulta SQL que devuelve los valores que 
-					puede tomar el campo. La consulta debe devolver una lista de
-					valores, de la forma:	
-						<valor>
-						<valor>
-					O también de la forma:
-						<valor><tabulación><etiqueta>
-						<valor><tabulación><etiqueta>
-					Ejemplos de subconsultas son:
-						select idInstitucion from instituciones
-						select concat(idPerfil,'\t',idPerfil) from perfiles
-					El campo <valor> se usará para construir la sentencia INSERT
-					cuando se agregue el registro.
-				<valor_inic> es el valor inicial que se le asignará al campo 
-				cuando se muestre el fomulario. Normalmente no se especificará un
-				valor inicial al campo, porque el formulario es para crear un
-				nuevo registro de la tabla.
-	 $hins   -> Enlace a donde se envía con el botón "Agregar".
-	 $hret	->	Enlace a donde se envía con el botón "Volver". Si es una
-				cadena nula, no se genera este botón.
+	 	$table 	-> Nombre de la tabla.
+		$cols	-> Devuelve un arreglo con información sobre las columnas.
+		$href	-> Enlace del formulario, al ejecutar ek "submit".
+		$idf 	-> Id del formulario.
 	*/
 	global $dbConex;
 	//Lee información de la tabla en el arreglo $cols()
@@ -1029,47 +1025,15 @@ function form_insert($table, $fields, $hins, $hret, $msj_agre){
 	while($row = mysqli_fetch_array($q)) {
 		$cols[] = $row;  //Acumula en el arreglo.
 	}
-	echo '<form class="form_insert" action="'.$hins.'" method="post" >';
-	//Genera controles
-	if ($fields == []) { //Para todas las columnas de la tabla.
-		$ids = [];   //Inicia arreglo
-		foreach ($cols as $row) {
-			_decode_row($row, $name, $type_nam, $type_arg, $default,  $extra, $null);
-			_gen_control_columns($cols, $name, $name, '', '', $in_id, 'insert');
-			$ids[] =  $in_id;  //Devuelve índice 
-		}
-	} else {  //Para las columnas indicadas
-		/* Se espera que el formato sea: 
-			<nombre_colum>|<etiqueta>|<Subconsulta>|<valor inicial>
-		*/
-		$ids = [];   //Inicia arreglo
-		foreach($fields as $item) {  //Explora las columna indicadas
-			$tmp = trim($item);  
-			//Extrae campos
-			$a = explode('|', $tmp);
-			$name = trim($a[0]);  //Nombre de columna 
-			if (count($a)>1) $etiq=trim($a[1]); //Etiqueta 
-			else $etiq=$name; 
-			if (count($a)>2) $subquery=trim($a[2]); //Subquery
-			else $subquery='';
-			if (count($a)>3) $valini = trim($a[3]); //Valor inicial
-			else $valini = '';  
-			if ($valini!='') {  //Caso especial donde se indica un valor inicial
-				_gen_control_columns($cols, $name, $etiq, $subquery, $valini, $in_id, 'update');
-			} else {  //Caso normal de campo en modo "Insert".
-				_gen_control_columns($cols, $name, $etiq, $subquery, '', $in_id, 'insert');
-			}
-			$ids[] =  $in_id;  //Devuelve índice 
-		}
+	echo '<form class="form_insert" action="'.$href.'" method="post" ';
+	if ($idf!='') {
+		echo 'id="'.$idf.'" >';
+	} else {
+		echo '>';
 	}
-	if ($hret=='') {  //Botón único
-		button_submit($msj_agre);
-	} else {  //Con botón "Volver"
-		echo '<div class="hor_buttons">';
-		button_submit($msj_agre);
-		hbutton('<< Volver', $hret);
-		echo '</div>';
-	} 
+}
+function _end_form(array $ids) {
+	/* Rutina final de los formularios usados con form_insert() y form_update(). */
 	echo '</form>';
 	/*Genera código javascript para validación de datos obligatorios.
 	La función devuelve TRUE si el campo no es válido. */
@@ -1115,7 +1079,85 @@ function form_insert($table, $fields, $hins, $hret, $msj_agre){
 	  });
 	');		
 }
-function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
+function form_insert($table, $fields, $hins, $hret, $msj_add){
+	/* Genera HTML de un formulario para agregar registros a una tabla. Un 
+	 formulario, de este tipo, aparece con sus campos en blanco o con los
+	 valores por defecto, que se hayan definido en la creación de la tabla.
+	 Parámetros:
+	 $table  -> Tabla a editar.
+	 $fields -> Arreglo de campos que se desean editar. Debe tener la forma:
+					$fields = ['idReg|ID','Nombre', 'direccion|Dirección'];
+				El formato completo de los ítems de $fields[] es:
+					<nombre_colum>|<etiqueta>|<Subconsulta>|<valor_inic>
+				El valor <nombre_colum> es el nombre de la columna, de $table,
+				que se usará para este campo.
+				Si no se indica <etiqueta>, se usará <nombre_colum> en su lugar.
+				<Subconsulta> es la consulta SQL que devuelve los valores que 
+					puede tomar el campo. La consulta debe devolver una lista de
+					valores, de la forma:	
+						<valor>
+						<valor>
+					O también de la forma:
+						<valor><tabulación><etiqueta>
+						<valor><tabulación><etiqueta>
+					Ejemplos de subconsultas son:
+						select idInstitucion from instituciones
+						select concat(idPerfil,'\t',idPerfil) from perfiles
+					El campo <valor> se usará para construir la sentencia INSERT
+					cuando se agregue el registro.
+				<valor_inic> es el valor inicial que se le asignará al campo 
+				cuando se muestre el fomulario. Normalmente no se especificará un
+				valor inicial al campo, porque el formulario es para crear un
+				nuevo registro de la tabla.
+	 $hins   -> Enlace a donde se envía con el botón "Agregar".
+	 $hret	->	Enlace a donde se envía con el botón "Volver". Si es una
+				cadena nula, no se genera este botón.
+	*/
+	$cols = [];
+	_start_form($table, $cols, $hins);
+	//Genera controles
+	if ($fields == []) { //Para todas las columnas de la tabla.
+		$ids = [];   //Inicia arreglo
+		foreach ($cols as $row) {
+			_decode_row($row, $name, $type_nam, $type_arg, $default,  $extra, $null);
+			_gen_control_columns($cols, $name, $name, '', '', $in_id, 'insert');
+			$ids[] =  $in_id;  //Devuelve índice 
+		}
+	} else {  //Para las columnas indicadas
+		/* Se espera que el formato sea: 
+			<nombre_colum>|<etiqueta>|<Subconsulta>|<valor inicial>
+		*/
+		$ids = [];   //Inicia arreglo
+		foreach($fields as $item) {  //Explora las columna indicadas
+			$tmp = trim($item);  
+			//Extrae campos
+			$a = explode('|', $tmp);
+			$name = trim($a[0]);  //Nombre de columna 
+			if (count($a)>1) $etiq=trim($a[1]); //Etiqueta 
+			else $etiq=$name; 
+			if (count($a)>2) $subquery=trim($a[2]); //Subquery
+			else $subquery='';
+			if (count($a)>3) $valini = trim($a[3]); //Valor inicial
+			else $valini = '';  
+			if ($valini!='') {  //Caso especial donde se indica un valor inicial
+				_gen_control_columns($cols, $name, $etiq, $subquery, $valini, $in_id, 'update');
+			} else {  //Caso normal de campo en modo "Insert".
+				_gen_control_columns($cols, $name, $etiq, $subquery, '', $in_id, 'insert');
+			}
+			$ids[] =  $in_id;  //Devuelve índice 
+		}
+	}
+	if ($hret=='') {  //Botón único
+		button_submit($msj_add);
+	} else {  //Con botón "Volver"
+		echo '<div class="hor_buttons">';
+		button_submit($msj_add);
+		hbutton('<< Volver', $hret);
+		echo '</div>';
+	} 
+	_end_form($ids);
+}
+function form_update($table, $fields, $hupd, $hret, $msj_add, $cond_reg){
 	/* Genera HTML de un formulario para editar registros de una 
 	 tabla. Parámetros:
 	 $table  -> Tabla a editar.
@@ -1139,20 +1181,15 @@ function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 						select concat(idPerfil,'\t',idPerfil) from perfiles
 					El campo <valor> se usará para construir la sentencia INSERT
 					cuando se agregue el registro.
-	$hupd   -> Enlace a donde se envía con el botón "Grabar".
-	$hret	-> Enlace a donde se envía con el botón "Volver". Si es una 
+ 	 $hupd   -> Enlace a donde se envía con el botón "Grabar".
+	 $hret	-> Enlace a donde se envía con el botón "Volver". Si es una 
 				cadena nula, no se genera este botón.
-	$cond_reg->Condición de la consulta que devolverá un registro. Se 
+	 $cond_reg->Condición de la consulta que devolverá un registro. Se 
 				espera que sea de la forma: "ID = 12345"
 	*/
 	global $dbConex;
-	//Lee información de la tabla en el arreglo $cols()
-	$cols = array();  //Inicia arreglo
-	$q = mysqli_query($dbConex, "DESCRIBE $table");
-	while($row = mysqli_fetch_array($q)) {
-		$cols[] = $row; //Acumula en el arreglo.
-	}
-	echo '<form class="form_insert" action="'.$hupd.'" method="post" >';
+	$cols = [];
+	_start_form($table, $cols, $hupd);
 	//Consulta para acceder al registro a editar
 	$q = mysqli_query($dbConex, "select * from $table where $cond_reg");
 	if ($row = mysqli_fetch_array($q)) {
@@ -1179,59 +1216,14 @@ function form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg){
 		//No hay resultados.
 	}
 	if ($hret=='') {  //Botón único
-		button_submit($msj_agre);
+		button_submit($msj_add);
 	} else {  //Con botón "Volver"
 		echo '<div class="hor_buttons">';
-		button_submit($msj_agre);
+		button_submit($msj_add);
 		hbutton('<< Volver', $hret);
 		echo '</div>';
-	} 
-	echo '</form>';
-
-	/*Genera código javascript para validación de datos obligatorios.
-	La función devuelve TRUE si el campo no es válido. */
-
-	JSaddCode('function valid(id) {'.
-		//'console.log("aaa:"+$(id).val());'.
-		'var l=$(id).parent().parent().find(".msg");'.
-		'if ($(id).val()=="") {'.
-		'	l.text("Ingresar valor.");'.
-		'	return true;'.
-		'} else {'.
-		'	l.text("");'.
-		'	return false;'.
-		'}
-	};');
-	// Código para temporizar
-	$js = '';
-	foreach ($ids as $campo) {  //Código para llamar a las rutinas de verifiación de llenado de campos obligatorios.
-		$a = explode('-',$campo);
-		//$campo_tip = $a[1];
-		if ($a[2]=='0') continue; //Campo que puede ser NULL.
-		if ($a[3]=='1') continue; //Campo Auto_increment
-		$js.='if (valid("#'.$campo.'")) f=true;';  //Llamada a validación
-		//echo '<br>---'.$campo;
 	}
-	JSaddCode('$(document).ready(function() {'.
-		//primer refresco 
-		'refrescar();'.
-		//Configura temporizador
-		'var temporizador=setInterval(function(){refrescar()}, 1000);'. 
-		//Funciones dentro del bloque ready().
-		'function refrescar(){'.
-		'	var f=false;'.
-		$js.  //Verifica
-		//Se activa o desactiva, el botón "Agregar" de acuerdo
-		'	if (f) {'.  //Falta completar
-		'		$(":submit").prop("disabled", true);'.
-		'		$(":submit").attr("class", "btn btn-disabled");'.
-		'	} else {'.
-		'		$(":submit").prop("disabled", false);'.
-		'		$(":submit").attr("class", "btn btn-primary");'.
-		'	}'.
-		'}
-	  });
-	');
+	_end_form($ids);
 }
 function create_menu($description, $class) {
 	/* Genera HTML de un menú, en la forma de <ul> ... </ul> 

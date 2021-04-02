@@ -168,9 +168,9 @@ Table viewing is done using three main functions:
 
 * table_list($fsql, $hidecols, $buttons, $autonum, $page, $page_size)
 
-* form_insert($table, $fields, $hins, $hret, $msj_agre)
+* form_insert($table, $fields, $hins, $hret, $msj_add)
 
-* form_update($table, $fields, $hupd, $hret, $msj_agre, $cond_reg)
+* form_update($table, $fields, $hupd, $hret, $msj_add, $cond_reg)
 
 In order to have a correct viewing, databases must be created according to the following rules:
 
@@ -271,6 +271,68 @@ An example of using table_list() with pagination is:
 ```
 
 ![sample page](https://github.com/t-edson/phcontrols/blob/0.3/_screens/table_pag.png?raw=true)
+
+# form_insert 
+
+The function form_insert() is used to quickly create forms for creating a new row in a table.
+
+The declaration is:
+
+form_insert($table, $fields, $hins, $hret, $msj_add)
+
+This function generates HTML from a form to add records to a table. A form, of this type, appears with its fields blank or with the default values, which have been defined when the table was created.
+
+PARAMETER $table
+
+A string. It's the name of the table to edit.
+
+
+PARAMETER $fields
+
+Array of strings. Array containing the fields to be edited. Could be something like:
+	 
+	$fields = ['idReg|ID','Name', 'address|Adrress'];
+					
+Each element of the array define a column of the table. The complete format of an item of $fields[] is:
+
+	<colum_name>|<label>|<Subquery>|<init_value>
+
+It's a string containing several fields separated by the character "|".
+
+The value <colum_name> is the name of the column, of the table $table, used in this field. 
+
+The value <label> is the label to put next to the field to be edited. If <label> is not specified, <colum_name> will be used instead.
+
+The value <Subquery> is the SQL query returning the possibble values the field can take. The query must return a list of values in the form:	
+	<value>
+	<value>
+Or also:
+	<value><tab><label>
+	<value><tab><label>
+Examples of subqueries are:
+	select idInstitution from institutions
+	select concat(idProfil,'\t',idProfil) from profiles
+The field <value> will be used to build the sentence INSERT, later, when the row is added.
+
+The field <init_value> is the initial value to be assigned to the field, when the form is shown. Normally, an initial value will not be specified for the field, because the form is for creating a new record in the table.				
+				
+PARAMETER $hins
+
+   A string. It's the link to be executed when the button "Add" is pressed. 
+   
+PARAMETER $hret
+
+	A string. It's the link to be executed when the button "Back" is pressed. 
+	
+	If it's a a null string, th ebutton is not generated.
+				
+PARAMETER $msj_add
+
+	A string. It's the label to be placed in the button "Add", which is the button that add the new row to the table.
+
+# form_update
+
+The function form_update() is used to quickly create forms for editing a row in a table.
 
 
 # Installation

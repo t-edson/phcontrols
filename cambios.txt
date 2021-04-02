@@ -1,24 +1,31 @@
+0.4
+===
+Se agregan las funciones _start_form() y _end_form() para reutilizar la parte
+inicial de las rutinas form_insert() y form_update(), de modo que se facilita
+la creaciÃ³n de formularios personalizados.
+
 0.3
 ===
-Se agrega el parámetro $autonum a table_list().
-Se agrega capacidad de paginación a las tablas mostradas con table_list().
-Se agrega la función pagination_links() para crear los botones de paginación.
-Se agrega información sobre table_list() al README.md.
+Se agrega el parï¿½metro $autonum a table_list().
+Se agrega capacidad de paginaciï¿½n a las tablas mostradas con table_list().
+Se agrega la funciï¿½n pagination_links() para crear los botones de paginaciï¿½n.
+Se agrega informaciï¿½n sobre table_list() al README.md.
 Se cambia de nombre a _item_bloque() por item_block() y se agrega un nuevo 
-parámetro.
-Se reordena el código de form_update(), para uniformizar con form_insert().
+parï¿½metro.
+Se reordena el cï¿½digo de form_update(), para uniformizar con form_insert().
 Se crea la clase "hor_buttons" para facilitar el centrado de botones.
+Se crea la funciï¿½n cswitch() y se usa en control_switch().
 
 0.2
 ===
-Se crea la carpeta /_screens y se mueven allí las capturas de pantalla.
-Se incluye la imagen "add64.png" como parte de la librería.
+Se crea la carpeta /_screens y se mueven allï¿½ las capturas de pantalla.
+Se incluye la imagen "add64.png" como parte de la librerï¿½a.
 Se cambia la referencia a "add64.png" dentro de "phcontrols.php", para que lo
 busque siempre en la misma carpeta en donde se encuentra "phcontrols.php".
 Se corrige _decodCampoPOST() y control_switch() para que puedan leer correctamente
 los valores de los campos BOOLEAN de los formularios, cuand se editan o agregan.
-Se corrigen los comentarios de form_update() y form_insert() que daban información 
-errónea sobre los separadores de las consultas del parámetro $fields.
+Se corrigen los comentarios de form_update() y form_insert() que daban informaciï¿½n 
+errï¿½nea sobre los separadores de las consultas del parï¿½metro $fields.
 Se incluye el archivo "cambios.txt".
 Se agrega una rutina para verificar si una tabla existe.
-Se quita la función redir().
+Se quita la funciï¿½n redir().
