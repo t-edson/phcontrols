@@ -1,0 +1,14 @@
+.tree-link:focus,
+.tree-link.active {
+  color: black;
+  background-color: #f9fafb;
+}
+
+.tree-link:hover,
+.tree-group-link:hover {
+  background-color: #f8f9fa;
+}
+
+.no-transition{
+  transition: none !important;
+}

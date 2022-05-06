@@ -1,0 +1,8 @@
+01/05/2022: 
+- Se incluye la librería phControls 0.4 en el globales.php
+- Se crea el archivo de procesamiento de comandos procom.php.
+- Se reordenan las librerías de terceros y se ponen en la carpeta /_libs
+- Se crea cuadro modal para mostrar mensaje de error de inicio de sesión.
+- Se habilita el inicio de sesión con usuario/contraseña.
+04/05/2022:
+- Se coorrige la codificación del pie de página (estabacon UTF-8 with BOM).
