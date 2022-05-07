@@ -13,7 +13,7 @@
 	define('_DBASE','aprendo123_demo');  //Nombre de base de datos
 ////////////// LIbrerías /////////////////
 	//include PHCONTROLS.'phcontrols.php';
-	include $_SERVER['DOCUMENT_ROOT']."/docutodo/phcontrols-0.4/phcontrols.php";
+	include $_SERVER['DOCUMENT_ROOT']."/docutodo/_libs/phcontrols-trunk/phcontrols.php";
 /////////////////  Manejo de sesión /////////////////////
 function SesionInic() {
 	/* Indica si se ha iniciado alguna sesión. */
@@ -150,6 +150,18 @@ function incFooter() {
 	incFooterEnd();
 }
 /////////////////  Funciones para el panel lateral /////////////////////
+function add_listbox($caption, $field_name, $items, $default, $class='') {
+    if (isset($_POST[$field_name])) {
+		//Hay un valor anterior
+		$default = $_POST[$field_name]; //ignoramos el $default
+		control_listbox($caption, $field_name, $items, $default, $class);
+		return $default;
+    } else {
+		//No hay valor anterior
+		control_listbox($caption, $field_name, $items, $default, $class);
+		return $default;
+    }
+}
 function button_crear($caption, $href) {
 	/* Inserta un botón de estilo indicado en $style, con un enlace
 	o URL asociado. */

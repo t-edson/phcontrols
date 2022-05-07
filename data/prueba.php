@@ -17,8 +17,8 @@ iniPanelBegin();
 
     control_number('Num. de sumandos:', 'nsum', '1', 1);
 
-    control_listbox('Núm. de sumandos', 'nsum', 
-        ['2 sumandos', '3 sumandos', '2 o 3 sumandos'], 0);
+    add_listbox('Núm. de sumandos', 'nsum', 
+        ['2 sumandos', '3 sumandos', '2 o 3 sumandos'], '2 sumandos');
     echo '<br>';
     button_crear('Crear', '');
 
