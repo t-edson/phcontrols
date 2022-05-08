@@ -276,7 +276,7 @@ An example of using table_list() with pagination is:
 		function($p) {return 'index.php&pag='.$p);} );
 ```
 
-![sample page](https://github.com/t-edson/phcontrols/blob/0.3/_screens/table_pag.png?raw=true)
+![sample page](https://github.com/t-edson/phcontrols/blob/trunk/_screens/table_pag.png?raw=true)
 
 # form_insert 
 
