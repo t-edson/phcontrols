@@ -8,6 +8,8 @@ Phcontrols is a light PHP library aimed to ease the construction of HTML forms i
 
 The library is just a set of considerably independent (but related) functions. No OOP paradigm is used.
 
+The library includes some functions for back-end and front-end. The back-end functions are the realted to the MySQL database connection.
+
 The front-end is created using some functions of the library. There are just a few visual elements:
 
 - Blocks.- A rectangle and rounded frame.
@@ -17,16 +19,13 @@ The front-end is created using some functions of the library. There are just a f
 
 The front-end created includes automatically generated Javascript code. Custom Javascript code can be included too.
 
+Controls created with the PHP functions are set to a correctly viewing using the style sheet included (phcontrols.css). If we don't want to use the styles of phcontrols.css, the bootstrap library will work regularly fine for most of the controls. For finer customization, you can use your own style sheet.
+
 It's not needed to work with a database to generate front-end, but some functions require to have a connection.
 
 The library doesn't force to use a special architecture for the application.
 
 ## Routines
-
-* Routines to include Javascript code:
-  * JSaddCode($code)
-  * JSaddFunction($name, $code)
-  * JSincludeScript()
 
 * Routines to access MySQL database:
   * DB_set_mysql()
@@ -36,6 +35,16 @@ The library doesn't force to use a special architecture for the application.
   * DB_read($sql)
   * DB_close()
   * DB_table_exist(string $tab_name): bool
+
+* Routines for back-end
+  * get_SQL_insert($table)
+  * get_SQL_update($table, $cond_reg)
+  * read_col_POST($col_name)
+
+* Routines to include Javascript code:
+  * JSaddCode($code)
+  * JSaddFunction($name, $code)
+  * JSincludeScript()
 
 * Routines to create Messages:
   * alert($msg, $class)
@@ -50,6 +59,7 @@ The library doesn't force to use a special architecture for the application.
   * passbox($id, $default, $disabled)
   * textbox($name, $default, $nrows, $disabled)
   * listbox($name, array $items, $default, $disabled)
+  * listrad($name, array $items, $default, $disabled)
   * abutton($caption, $action, $style="btn-primary")
   * hbutton($caption, $href, $style="btn-primary")
   * abutton_add($caption, $action)
@@ -85,10 +95,6 @@ The library doesn't force to use a special architecture for the application.
   * form_update($table, $fields, $hupd, $msj_agre, $cond_reg)
   * create_menu($description, $class)
 
-* Routines for back-end
-  * get_SQL_insert($table)
-  * get_SQL_update($table, $cond_reg)
-  * read_col_POST($col_name)
 
 ## Database connection
 
@@ -195,7 +201,7 @@ A simple way to use is:
 
 Information is shown in table format:
 
-![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample2.png?raw=true)
+![sample page](https://github.com/t-edson/phcontrols/blob/trunk/_screens/sample2.png?raw=true)
 
 The definition is: 
 
@@ -383,7 +389,7 @@ Hello World page can be created in a file index.php with the following code:
 
 The output would be:
 
-![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample1.png?raw=true)
+![sample page](https://github.com/t-edson/phcontrols/blob/trunk/_screens/sample1.png?raw=true)
 
 A simple database connnection to show a table list is:
 
@@ -404,4 +410,4 @@ A simple database connnection to show a table list is:
 
 The output would be:
 
-![sample page](https://github.com/t-edson/phcontrols/blob/0.2/_screens/sample2.png?raw=true)
+![sample page](https://github.com/t-edson/phcontrols/blob/trunk/_screens/sample2.png?raw=true)
