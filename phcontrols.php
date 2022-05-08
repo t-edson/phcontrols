@@ -296,6 +296,34 @@ function listbox($name, array $items, $default, $disabled) {
     echo '    </select>';
 	return $selected;
 }
+function listrad($name, array $items, $default, $disabled) {
+	/* Genera una lista de "Radiobuttons". Los valores de la lista
+	se obtienen del arreglo $items, que es un arreglo de cadenas como
+	['VALOR1', 'VALOR2'] o como ['VALOR1\tETIQ1', 'VALOR2\tETIQ2']. 
+	La cadena "$default" es el valor que se seleccionará de la lista. 
+	Debe existir en $items (como value, no en la etiqueta) o no se seleccionará. 
+	Si $default no existe en $items, devolverá FALSE. */
+	$selected = false;  
+	foreach ($items as $txt) {
+		$a = explode("\t", $txt);
+		$value = $a[0];  //Valor.
+		$label = (count($a)>1)?$a[1]:$value;  //Etiqueta
+		removeQuotes($value); //Siempre se quita comillas
+		removeQuotes($label); //Siempre se quita comillas
+		echo '<div class="form-check">';  //Estilo Bootstrap
+		echo '  <input type=radio name="'.$name.'" id="'.$value.'" value="'.$value.'"';
+		if ($value == $default) {
+			echo ' checked ';
+			$selected = true;
+		}
+		if ($disabled)	echo ' disabled ';
+		echo '  class="form-check-input" >';
+		echo '  <label class="form-check-label" for="'.$value.'">'.$label.'</label>';
+		echo '</div>';
+	}
+    //echo '    </select>';
+	return $selected;
+}
 function abutton($caption, $action, $style="btn-primary") {
 	/* Inserta un botón de estilo indicado en $style, con una acción 
 	definida en el evento onclick="".
