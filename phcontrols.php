@@ -269,6 +269,24 @@ function cswitch($name, $default, $disabled) {
 	echo '  	<span class="slider"></span>';
 	echo '</label>';
 }
+function checkbox($name, $default, $disabled) {
+	echo '<label class="checkbox">';
+	/*Control <input> oculto adicional, para que el requerimiento POST envíe
+	información cuando el checkbox siguiente esté en falso (De otra forma no
+	se envía por POST). */
+	echo '    <input type="hidden" value="0" name="'.$name.'">';
+	//Control "checkbox" principal.
+	if ($default == 1) {
+		echo '  <input type="checkbox" name="'.$name.'" checked ';
+		if ($disabled)	echo ' disabled ';
+		echo '    id="'.$name.'">';
+	} else {
+		echo '  <input type="checkbox" name="'.$name.'" ';
+		if ($disabled)	echo ' disabled ';
+		echo '    id="'.$name.'">';
+	}
+	echo '</label>';
+}
 function listbox($name, array $items, $default, $disabled) {
 	/* Control listbox. Genera una lista desplegable. Los valores de la lista
 	se obtienen del $items El parámetro $default es el valor que se 
@@ -428,7 +446,7 @@ function control_password($caption, $field_name, $default, $class='') {
 	echo '  </div>';
 	echo '</div>';
 }
-function control_number($caption, $field_name, $default, $step, $class='') {
+function control_number($caption, $field_name, $default, $step, $min='', $max='', $class='') {
 	/* Inserta control de edición para campo numérico entero. El control tendrá la forma: 
 	 <caption> <control de edición> 
 	 El parámetro $field_name, se escribirá como atributo "name" e "id" del
@@ -439,7 +457,9 @@ function control_number($caption, $field_name, $default, $step, $class='') {
 	// Control
 	echo '  <div class="control">';
 	echo '    <input type="number" class="form-control" ';
-	if ($step!='') { echo 'step="'.$step.'"'; }
+	if ($step!='') { echo ' step="'.$step.'"'; }
+	if ($min!='') { echo ' min="'.$min.'"'; }
+	if ($max!='') { echo ' max="'.$max.'"'; }
 	echo '    name="'.$field_name.'" value="'.$default.'" ';
 	if ($class=='cnt-disabled')	echo ' disabled ';
 	echo '    id="'.$field_name.'">';
@@ -942,7 +962,7 @@ function _gen_control($etiq, $list_val,
 				control_password($etiq, $in_id, $default, $class);
 				break;
 			case "int":
-				control_number($etiq, $in_id, $default, '', $class);
+				control_number($etiq, $in_id, $default, '', '', '', $class);
 				break;
 			case "tinyint":
 				control_switch($etiq, $in_id, $default, $class);
@@ -954,10 +974,10 @@ function _gen_control($etiq, $list_val,
 				control_listbox($etiq, $in_id, $items, $default, $class);
 				break;
 			case "decimal":
-				control_number($etiq, $in_id, $default, '', $class);
+				control_number($etiq, $in_id, $default, '', '', '', $class);
 				break;
 			case "float":
-				control_number($etiq, $in_id, $default, 'any', $class);
+				control_number($etiq, $in_id, $default, 'any', '', '', $class);
 				break;
 			case "date":
 				control_date($etiq, $in_id, $default, $class);
