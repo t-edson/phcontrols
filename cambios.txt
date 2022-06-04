@@ -1,7 +1,14 @@
-29/05/2022
+29/05/2022:
 - Se agregan nuevos controles.
-- Se crea carpeta /test para incluir código de prueba y se incluyenm algunos
+- Se crea carpeta /test para incluir código de prueba y se incluyen algunos
 códigos de prueba.
+04/06/2022:
+- Se crea archivo block_table.php en una nueva carpeta /block_table_demo.
+- Se mueve todo el código relacionado a la función block_table_icons(), 
+incluyendo los íconos, al archivo block_table.php.
+- Se quitan de phcontrols.php las referencias a íconos porque ya no se usan
+y para evitar los problemas del enlace en <img >.
+
 0.4
 ===
 Se agregan las funciones _start_form() y _end_form() para reutilizar la parte
