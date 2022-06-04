@@ -1,3 +1,7 @@
+29/05/2022
+- Se agregan nuevos controles.
+- Se crea carpeta /test para incluir código de prueba y se incluyenm algunos
+códigos de prueba.
 0.4
 ===
 Se agregan las funciones _start_form() y _end_form() para reutilizar la parte
@@ -6,26 +10,26 @@ la creación de formularios personalizados.
 
 0.3
 ===
-Se agrega el par�metro $autonum a table_list().
-Se agrega capacidad de paginaci�n a las tablas mostradas con table_list().
-Se agrega la funci�n pagination_links() para crear los botones de paginaci�n.
-Se agrega informaci�n sobre table_list() al README.md.
+Se agrega el parámetro $autonum a table_list().
+Se agrega capacidad de paginación a las tablas mostradas con table_list().
+Se agrega la función pagination_links() para crear los botones de paginación.
+Se agrega informaciónn sobre table_list() al README.md.
 Se cambia de nombre a _item_bloque() por item_block() y se agrega un nuevo 
-par�metro.
-Se reordena el c�digo de form_update(), para uniformizar con form_insert().
+parámetro.
+Se reordena el código de form_update(), para uniformizar con form_insert().
 Se crea la clase "hor_buttons" para facilitar el centrado de botones.
-Se crea la funci�n cswitch() y se usa en control_switch().
+Se crea la función cswitch() y se usa en control_switch().
 
 0.2
 ===
-Se crea la carpeta /_screens y se mueven all� las capturas de pantalla.
-Se incluye la imagen "add64.png" como parte de la librer�a.
+Se crea la carpeta /_screens y se mueven allí las capturas de pantalla.
+Se incluye la imagen "add64.png" como parte de la librería.
 Se cambia la referencia a "add64.png" dentro de "phcontrols.php", para que lo
 busque siempre en la misma carpeta en donde se encuentra "phcontrols.php".
 Se corrige _decodCampoPOST() y control_switch() para que puedan leer correctamente
 los valores de los campos BOOLEAN de los formularios, cuand se editan o agregan.
-Se corrigen los comentarios de form_update() y form_insert() que daban informaci�n 
-err�nea sobre los separadores de las consultas del par�metro $fields.
+Se corrigen los comentarios de form_update() y form_insert() que daban información 
+errónea sobre los separadores de las consultas del parámetro $fields.
 Se incluye el archivo "cambios.txt".
 Se agrega una rutina para verificar si una tabla existe.
-Se quita la funci�n redir().
+Se quita la función redir().
