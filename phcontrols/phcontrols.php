@@ -622,14 +622,72 @@ function block_separatorh() {
 	echo '<div class="block_seph"></div>';
 }
 ///////////////// Rutinas front-end /////////////////
+function _pag_botones_anter($f_href, $page, $maxbuttons=2) {
+	/* Genera los botones de paginación anteriores al botón actual. 
+	$page -> Índice de la página actual.
+	$maxbuttons -> Máximo número de botones a usar. Debe ser mayor a 2.
+	*/
+	if ($maxbuttons<2) $maxbuttons = 2;
+	if ($maxbuttons == 2 && $page>3) {	//Máximo dos botones y hay más de dos.
+		//Primero se ponen "..."
+		echo '<a class="but" href="#"> ... </a>';
+		//Luego el botón anterior
+		$href = $f_href($page-1);
+		echo '<a class="but" href="'.$href.'">'.($page-1).'</a>';
+	} else if ($page>$maxbuttons+1) {	//Más botones que $maxbuttons
+		//Primero se ponen "..."
+		echo '<a class="but" href="#"> ... </a>';
+		//Botones siguientes
+		for($pag = $page-$maxbuttons+1; $pag<$page; $pag++) {  
+			$href = $f_href($pag);
+			echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
+		}
+	} else {	//Menos de dos botones
+		for($pag = 1; $pag<$page; $pag++) {  
+			$href = $f_href($pag);
+			echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
+		}
+	}
+}
+function _pag_boton_actual($f_href, $page) {
+	$href = $f_href($page);
+	echo '<a class="butsel" href="'.$href.'">'.$page.' </a>';
+}
+function _pag_botones_poster($f_href, $page, $n_pages, $maxbuttons=2) {
+	/* Genera los botones de paginación posteriores al botón actual. 
+	$page -> Índice de la página actual.
+	$n_pages -> Número total de páginas.
+	$maxbuttons -> Máximo número de botones a usar. Debe ser mayor a 2.
+	 */
+	if ($maxbuttons<2) $maxbuttons = 2;
+	if ($maxbuttons == 2 && ($n_pages-$page)>2) {	//Máximo dos botones y hay más de dos.
+		//Primer botón se pone el que sigue
+		$href = $f_href($page+1);
+		echo '<a class="but" href="'.$href.'">'.($page+1).'</a>';
+		//Luego se ponen "..."
+		echo '<a class="but" href="#"> ... </a>';
+	} else if (($n_pages-$page)>$maxbuttons) {	//Más botones que $maxbuttons
+		for($pag = $page+1; $pag<=$page+$maxbuttons-1; $pag++) {  
+			$href = $f_href($pag);
+			echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
+		}
+		//Luego se ponen "..."
+		echo '<a class="but" href="#"> ... </a>';
+	} else {	//Menos de dos botones
+		for($pag = $page+1; $pag<=$n_pages; $pag++) {  
+			$href = $f_href($pag);
+			echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
+		}
+	}
+}
 function pagination_links($n_pages, $page, $f_href){
 	/* Crea una barra horizontal con enlaces de tipo: 1,2,3 ... usado para
-	cambiar la página de algún control que se muestre por páginas. 
-	$n_pages->	Número de páginas a mostrar.	
-	$page	->	Página actual mostrada.
-	$f_href ->	Función que se usará para obtener la URL a poner en el botón.
-				Debe tener un parámetro que es donde recibirá el número de
-				página.
+	   cambiar la página de algún control que se muestre por páginas. 
+	   $n_pages->	Número de páginas a mostrar.	
+	   $page   ->	Página actual mostrada.
+	   $f_href ->	Función que se usará para obtener la URL a poner en el botón.
+	   				Debe tener un parámetro que es donde recibirá el número de
+	   				página.
 	*/
 	if ($n_pages<=1) return;
 	//Hay paginación
@@ -643,15 +701,13 @@ function pagination_links($n_pages, $page, $f_href){
 		echo '<a class="but" href="#"> < </a>';
 	}
 	//Botones centrales
-	for($pag = 1; $pag<= $n_pages; $pag++) {  
-		if ($pag==$page) {  //Página actual
-			$href = $f_href($pag);
-			echo '<a class="butsel" href="'.$href.'">'.$pag.' </a>';
-		} else {
-			$href = $f_href($pag);
-			echo '<a class="but" href="'.$href.'">'.$pag.' </a>';
-		}
-	}
+	$maxbuttons = 8;		//Máximo número de botones permitidos.
+	$maxbuts2 = intdiv($maxbuttons,2);	//Botones a cada lado cuando está balanceado
+	$npag_bef = min($page-1, $maxbuts2);		//Número de botones anteriores que aparecerán.
+	$npag_aft = min($n_pages-$page, $maxbuts2);	//Número de botones posteriores que aparecerán.
+	_pag_botones_anter($f_href, $page			, $maxbuttons-$npag_aft);
+	_pag_boton_actual($f_href, $page);
+	_pag_botones_poster($f_href, $page, $n_pages, $maxbuttons-$npag_bef);
 	//Botón >>
 	if ($page<$n_pages) {
 		$href = $f_href($page+1);
@@ -1177,14 +1233,14 @@ function create_menu($description, $class) {
 	/* Genera HTML de un menú, en la forma de <ul> ... </ul> 
 	 El parámetro $description tiene la forma de un arreglo de elementos:
 		[elemento1, elemento2, ... ]
-	 Cada elemento es a la vez un arreglo de  2 o 3 elementos:
-		[título, enlace]
-		[título, enlace, ícono, submenú]
+	 Cada elemento es a la vez un arreglo de 3 o 4 elementos:
+		[título, ícono, enlace]
+		[título, ícono, enlace, submenú]
 	 Un ejemplo para un menú sería:
  
-		$href_home= ['Inicio', 'www.misitio.com'];
-		$href_cur = ['Cursos', 'www.misitio.com/_cur_list'];
-		$href_usu = ['Usuarios', 'www.misitio.com/_usu_list'];
+		$href_home= ['Inicio', '', 'www.misitio.com'];
+		$href_cur = ['Cursos', '', 'www.misitio.com/_cur_list'];
+		$href_usu = ['Usuarios', 'ico.jpg', 'www.misitio.com/_usu_list'];
 		create_menu([$href_home, $href_cur, $href_usu], 'menu');
 	*/
 	echo '<ul class="'.$class.'">';

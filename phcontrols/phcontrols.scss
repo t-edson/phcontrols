@@ -392,6 +392,7 @@ $col_panel  : #e0e0e0;
     border: 1px solid $col_border;
     color: $col_button;
     cursor: pointer;
+    display: inline-block;
   }
   .butsel { //Botón actual
     padding: 0.3rem;

@@ -8,6 +8,11 @@ códigos de prueba.
 incluyendo los íconos, al archivo block_table.php.
 - Se quitan de phcontrols.php las referencias a íconos porque ya no se usan
 y para evitar los problemas del enlace en <img >.
+- Se actualiza (se quitan funciones movidas) y corrige (código ejemplo de 
+table_list) README.md .
+- Se corrige presentación de barra de paginación cuando ocupa más de una 
+línea y se le agrega la opción para mantener un ancho máximo de botones usando
+el botón "...".
 
 0.4
 ===

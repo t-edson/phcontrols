@@ -87,8 +87,6 @@ The library doesn't force to use a special architecture for the application.
   * block_separatorh()
 
 * Routines for front-end
-  * item_block($name, $img, $id, $action, $hsel, $draggable=true)
-  * block_table_icons($title, $icon, $tabla, $col_id, $col_txt, $msj_agre, $hadd, $hsel, $hdel)
   * pagination_links($n_pages, $page, $f_href)
   * table_list($fsql, $hidecols, $buttons)
   * form_insert($table, $fields, $hins, $msj_agre)
@@ -270,10 +268,10 @@ When pagination is used, it's possible to show a list of buttons to navigate in 
 An example of using table_list() with pagination is:
 
 ```
-	$page = $_GET['pag'];   //Could be 1, 2 or 3
+	$page = $_GET['pag'];   //Could be 1, 2 or 3. This parameter must always be included in the URL
 	$n_pages = table_list($fsql, 0, [], true, $page, 5);
 	pagination_links($n_pages, $page, 
-		function($p) {return 'index.php&pag='.$p);} );
+		function($p) {return ('index.php?pag='.$p);} );
 ```
 
 ![sample page](https://github.com/t-edson/phcontrols/blob/trunk/_screens/table_pag.png?raw=true)
